@@ -3,1616 +3,611 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dot Phrase Search Tool</title>
+    <title>PT Dot Phrases Database</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background-color: #f9fafb;
-            line-height: 1.6;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
         }
-        
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            min-height: 100vh;
-            padding: 24px;
+            background: white;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
-        .title {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 24px;
-            color: #1f2937;
+        h1 {
+            color: #2c5aa0;
+            text-align: center;
+            margin-bottom: 30px;
         }
-        
-        .upload-area {
-            margin-bottom: 24px;
-            padding: 16px;
-            border: 2px dashed #d1d5db;
-            border-radius: 8px;
-        }
-        
-        .upload-content {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .upload-label {
-            cursor: pointer;
-            color: #2563eb;
-            font-weight: 500;
-            padding: 8px 16px;
-            border: 1px solid #2563eb;
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
             border-radius: 6px;
+            font-size: 16px;
+        }
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
             background: white;
         }
-        
-        .upload-label:hover {
-            background-color: #eff6ff;
+        th {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
         }
-        
-        .file-input {
-            display: none;
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
         }
-        
-        .upload-description {
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-top: 4px;
+        tr:hover {
+            background-color: #f8f9fa;
         }
-        
-        .loading {
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #2563eb;
+        .dot-phrase {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #d63384;
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
         }
-        
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #e5e7eb;
-            border-top: 2px solid #2563eb;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .category {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .cat-assessment { background-color: #0d6efd; }
+        .cat-exercise { background-color: #198754; }
+        .cat-modality { background-color: #fd7e14; }
+        .cat-documentation { background-color: #6f42c1; }
+        .cat-outcome { background-color: #dc3545; }
+        .cat-acute { background-color: #dc3545; }
+        .cat-anatomy { background-color: #20c997; }
+        .cat-pelvic { background-color: #e91e63; }
+        .cat-staff { background-color: #6c757d; }
+        .cat-evaluation { background-color: #ffc107; color: #000; }
+        .cat-treatment { background-color: #17a2b8; }
+        .soap {
+            font-weight: bold;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 11px;
         }
-        
-        .action-buttons {
+        .soap-s { background-color: #e3f2fd; color: #1976d2; }
+        .soap-o { background-color: #e8f5e8; color: #388e3c; }
+        .soap-a { background-color: #fff3e0; color: #f57c00; }
+        .soap-p { background-color: #fce4ec; color: #c2185b; }
+        .soap-general { background-color: #f5f5f5; color: #616161; }
+        .description-cell {
+            max-width: 400px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        .brief-desc {
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+        .export-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .export-btn:hover {
+            background-color: #218838;
+        }
+        .stats {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .filter-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .btn {
-            display: flex;
-            align-items: center;
             gap: 8px;
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s;
-            font-size: 14px;
-        }
-        
-        .btn-primary {
-            background-color: #059669;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: #047857;
-        }
-        
-        .btn-secondary {
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #d1d5db;
-        }
-        
-        .btn-secondary.active {
-            background-color: #eab308;
-            color: white;
-        }
-        
-        .btn-blue {
-            background-color: #2563eb;
-            color: white;
-        }
-        
-        .btn-blue:hover {
-            background-color: #1d4ed8;
-        }
-        
-        .btn-purple {
-            background-color: #7c3aed;
-            color: white;
-        }
-        
-        .btn-purple:hover {
-            background-color: #6d28d9;
-        }
-        
-        .btn-red {
-            background-color: #dc2626;
-            color: white;
-        }
-        
-        .btn-red:hover {
-            background-color: #b91c1c;
-        }
-        
-        .search-container {
-            position: relative;
-            margin-bottom: 24px;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 12px 40px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 1.125rem;
-            outline: none;
-        }
-        
-        .search-input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
-        
-        .clear-search {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #9ca3af;
-            padding: 4px;
-        }
-        
-        .clear-search:hover {
-            color: #6b7280;
-        }
-        
-        .results-info {
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #6b7280;
-            font-size: 14px;
-        }
-        
-        .results-grid {
-            display: grid;
-            gap: 16px;
-        }
-        
-        .phrase-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .phrase-card:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-color: #d1d5db;
-        }
-        
-        .phrase-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        
-        .phrase-content {
-            flex: 1;
-        }
-        
-        .phrase-title-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-        
-        .phrase-title {
-            font-family: 'Courier New', monospace;
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #2563eb;
-        }
-        
-        .badge {
-            padding: 2px 8px;
-            font-size: 0.75rem;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-        
-        .badge-custom {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-        
-        .badge-usage {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .phrase-description {
-            color: #374151;
-            margin-bottom: 8px;
-        }
-        
-        .phrase-preview {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        
-        .phrase-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-left: 16px;
-        }
-        
-        .action-btn {
-            padding: 8px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            color: #9ca3af;
-            transition: all 0.2s;
-        }
-        
-        .action-btn:hover {
-            background-color: #f3f4f6;
-            color: #6b7280;
-        }
-        
-        .action-btn.favorite {
-            color: #eab308;
-        }
-        
-        .action-btn.favorite:hover {
-            color: #ca8a04;
-        }
-        
-        .action-btn.danger {
-            color: #ef4444;
-        }
-        
-        .action-btn.danger:hover {
-            background-color: #fef2f2;
-            color: #dc2626;
-        }
-        
-        .expanded-content {
-            margin-top: 12px;
-            padding: 12px;
-            background-color: #f9fafb;
-            border-radius: 6px;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .expanded-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-        
-        .expanded-title {
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .template-content {
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-            background-color: white;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #e5e7eb;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .highlight {
-            background-color: #fef3c7;
-            padding: 0 2px;
-            border-radius: 2px;
-        }
-        
-        .no-results {
-            text-align: center;
-            padding: 48px 0;
-            color: #6b7280;
-        }
-        
-        .form-panel {
-            margin-bottom: 24px;
-            padding: 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            background-color: #f9fafb;
-        }
-        
-        .form-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 4px;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            outline: none;
-        }
-        
-        .form-input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .form-textarea {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            outline: none;
-            resize: vertical;
-            min-height: 120px;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .stats-panel {
-            margin-bottom: 24px;
-            padding: 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            background-color: #eff6ff;
-        }
-        
-        .stats-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #1e40af;
-        }
-        
-        .stats-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-        }
-        
-        .stats-phrase {
-            font-family: 'Courier New', monospace;
-            color: #2563eb;
-            font-weight: 600;
-        }
-        
-        .stats-count {
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-        
-        .instructions {
-            margin-top: 32px;
-            padding: 16px;
-            background-color: #eff6ff;
-            border-radius: 8px;
-        }
-        
-        .instructions-title {
-            font-weight: 600;
-            color: #1e40af;
-            margin-bottom: 8px;
-        }
-        
-        .instructions-list {
-            color: #1e40af;
-            font-size: 0.875rem;
-            list-style-position: inside;
-        }
-        
-        .instructions-list li {
-            margin-bottom: 4px;
-        }
-
-        .copy-feedback {
-            background-color: #10b981 !important;
-            color: white !important;
-        }
-
-        .status-message {
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-weight: 500;
-        }
-
-        .status-success {
-            background-color: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .status-error {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal {
+            margin-bottom: 20px;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #dee2e6;
             background: white;
-            padding: 24px;
-            border-radius: 8px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #1f2937;
+        .filter-btn:hover {
+            border-color: #2c5aa0;
+            background-color: #f8f9fa;
         }
-
-        .modal-message {
-            margin-bottom: 24px;
-            color: #374151;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .bulk-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding: 12px;
-            background-color: #f3f4f6;
-            border-radius: 8px;
-        }
-
-        .bulk-actions select {
-            padding: 6px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            background: white;
-        }
-
-        .checkbox {
-            width: 16px;
-            height: 16px;
-            margin-right: 8px;
-        }
-
-        .select-all-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            font-size: 0.875rem;
-            color: #6b7280;
+        .filter-btn.active {
+            background-color: #2c5aa0;
+            color: white;
+            border-color: #2c5aa0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="title">Dot Phrase Search Tool</h1>
+        <h1>Physical Therapy Dot Phrases Database</h1>
         
-        <div id="status-messages"></div>
+        <div class="stats">
+            <strong>Total Entries:</strong> <span id="totalCount">0</span> | 
+            <strong>Filtered:</strong> <span id="filteredCount">0</span>
+        </div>
         
-        <div class="upload-area">
-            <div class="upload-content">
-                <div>
-                    <label for="file-upload" class="upload-label">
-                        📁 Upload Excel File
-                    </label>
-                    <input
-                        id="file-upload"
-                        type="file"
-                        accept=".xlsx,.xls,.csv"
-                        class="file-input"
-                    />
-                    <p class="upload-description">
-                        Upload your Excel file with dot phrases. Expected columns: Dot Phrase, Description, Content
-                    </p>
-                </div>
-            </div>
-            <div id="loading" class="loading" style="display: none;">
-                <div class="spinner"></div>
-                <span>Processing file...</span>
-            </div>
+        <button class="export-btn" onclick="exportToCSV()">Export to CSV</button>
+        
+        <input type="text" class="search-box" id="searchBox" placeholder="Search dot phrases, descriptions, categories, or any text content...">
+        
+        <div class="filter-buttons" style="margin-bottom: 20px;">
+            <button class="filter-btn active" onclick="filterByCategory('All')">All</button>
+            <button class="filter-btn" onclick="filterByCategory('Exercise')">Exercise</button>
+            <button class="filter-btn" onclick="filterByCategory('Assessment')">Assessment</button>
+            <button class="filter-btn" onclick="filterByCategory('Documentation')">Documentation</button>
+            <button class="filter-btn" onclick="filterByCategory('Pelvic')">Pelvic</button>
+            <button class="filter-btn" onclick="filterByCategory('Acute Care')">Acute Care</button>
+            <button class="filter-btn" onclick="filterByCategory('Treatment')">Treatment</button>
+            <button class="filter-btn" onclick="filterByCategory('Modality')">Modality</button>
+            <button class="filter-btn" onclick="filterByCategory('Outcome')">Outcome</button>
+            <button class="filter-btn" onclick="filterByCategory('Evaluation')">Evaluation</button>
+            <button class="filter-btn" onclick="filterByCategory('Staff')">Staff</button>
+            <button class="filter-btn" onclick="filterByCategory('Anatomy')">Anatomy</button>
         </div>
-
-        <div class="action-buttons">
-            <button id="create-btn" class="btn btn-primary">
-                ➕ Create New
-            </button>
-            
-            <button id="favorites-btn" class="btn btn-secondary">
-                ⭐ Favorites Only
-            </button>
-
-            <select id="category-filter" class="btn btn-secondary" style="padding: 10px 16px; background: #e5e7eb; border: none; border-radius: 8px;">
-                <option value="">All Categories</option>
-                <option value="Physical Exam">Physical Exam</option>
-                <option value="History">History</option>
-                <option value="Assessment">Assessment</option>
-                <option value="Plan">Plan</option>
-                <option value="Documentation">Documentation</option>
-                <option value="Vital Signs">Vital Signs</option>
-                <option value="Procedures">Procedures</option>
-                <option value="Social">Social</option>
-                <option value="Other">Other</option>
-            </select>
-
-            <select id="soap-filter" class="btn btn-secondary" style="padding: 10px 16px; background: #e5e7eb; border: none; border-radius: 8px;">
-                <option value="">All SOAP Sections</option>
-                <option value="Subjective">Subjective</option>
-                <option value="Objective">Objective</option>
-                <option value="Assessment">Assessment</option>
-                <option value="Plan">Plan</option>
-                <option value="Assessment/Plan">Assessment/Plan</option>
-                <option value="Other">Other</option>
-            </select>
-
-            <button id="stats-btn" class="btn btn-blue">
-                📊 Usage Stats
-            </button>
-
-            <button id="export-btn" class="btn btn-purple">
-                📤 Export Data
-            </button>
-
-            <button id="bulk-delete-btn" class="btn btn-red">
-                🗑️ Bulk Delete
-            </button>
-
-            <button id="clear-filters-btn" class="btn btn-secondary">
-                🔄 Clear Filters
-            </button>
-        </div>
-
-        <div id="form-panel" class="form-panel" style="display: none;">
-            <h3 id="form-title" class="form-title">Create New Dot Phrase</h3>
-            <form id="phrase-form">
-                <div class="form-group">
-                    <label class="form-label">Dot Phrase *</label>
-                    <input
-                        type="text"
-                        id="form-dotphrase"
-                        placeholder=".example"
-                        class="form-input"
-                        required
-                    />
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <input
-                        type="text"
-                        id="form-description"
-                        placeholder="Brief description of the template"
-                        class="form-input"
-                    />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <select id="form-category" class="form-input">
-                        <option value="">Select Category</option>
-                        <option value="Physical Exam">Physical Exam</option>
-                        <option value="History">History</option>
-                        <option value="Assessment">Assessment</option>
-                        <option value="Plan">Plan</option>
-                        <option value="Documentation">Documentation</option>
-                        <option value="Vital Signs">Vital Signs</option>
-                        <option value="Procedures">Procedures</option>
-                        <option value="Social">Social</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">SOAP Location</label>
-                    <select id="form-soap" class="form-input">
-                        <option value="">Select SOAP Section</option>
-                        <option value="Subjective">Subjective</option>
-                        <option value="Objective">Objective</option>
-                        <option value="Assessment">Assessment</option>
-                        <option value="Plan">Plan</option>
-                        <option value="Assessment/Plan">Assessment/Plan</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Template Content</label>
-                    <textarea
-                        id="form-content"
-                        placeholder="Enter your template content here..."
-                        class="form-textarea"
-                    ></textarea>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        💾 Save
-                    </button>
-                    <button type="button" id="cancel-btn" class="btn btn-secondary">
-                        ❌ Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <div id="stats-panel" class="stats-panel" style="display: none;">
-            <h3 class="stats-title">Usage Statistics</h3>
-            <div id="stats-content">
-                <p style="color: #1e40af;">No usage data yet. Start copying dot phrases to see statistics!</p>
-            </div>
-        </div>
-
-        <div id="bulk-delete-panel" class="bulk-actions" style="display: none;">
-            <div class="select-all-container">
-                <input type="checkbox" id="select-all" class="checkbox">
-                <label for="select-all">Select All</label>
-            </div>
-            <button id="delete-selected-btn" class="btn btn-red">
-                🗑️ Delete Selected
-            </button>
-            <button id="cancel-bulk-btn" class="btn btn-secondary">
-                Cancel
-            </button>
-        </div>
-
-        <div class="search-container">
-            <span class="search-icon">🔍</span>
-            <input
-                type="text"
-                id="search-input"
-                placeholder="Search dot phrases or descriptions..."
-                class="search-input"
-            />
-            <button id="clear-search" class="clear-search" style="display: none;">
-                ❌
-            </button>
-        </div>
-
-        <div class="results-info">
-            <p id="results-count">Showing 0 of 0 dot phrases</p>
-            <p id="results-stats">0 favorites • 0 phrases used</p>
-        </div>
-
-        <div id="results-grid" class="results-grid">
-        </div>
-
-        <div id="no-results" class="no-results" style="display: none;">
-            <p style="font-size: 3em;">🔍</p>
-            <p style="font-size: 1.125rem;">No dot phrases found</p>
-            <p>Try a different search term or check your spelling</p>
-        </div>
-
-        <div class="instructions">
-            <h3 class="instructions-title">Features:</h3>
-            <ul class="instructions-list">
-                <li>⭐ <strong>Favorites:</strong> Click the star icon to bookmark frequently used phrases</li>
-                <li>➕ <strong>Custom Templates:</strong> Create your own dot phrases with the "Create New" button</li>
-                <li>🔍 <strong>Search Highlighting:</strong> Search terms are highlighted in yellow in results</li>
-                <li>📊 <strong>Usage Tracking:</strong> See how often you use each phrase and view top-used phrases</li>
-                <li>📤 <strong>Export:</strong> Export all your data to CSV format for backup or sharing</li>
-                <li>🗑️ <strong>Bulk Delete:</strong> Select and delete multiple phrases at once</li>
-                <li>💾 <strong>Auto-save:</strong> All your favorites, custom phrases, and usage stats are saved locally</li>
-                <li>🏥 <strong>Offline Ready:</strong> Works without internet connection - perfect for hospital use!</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Confirmation Modal -->
-    <div id="modal-overlay" class="modal-overlay" style="display: none;">
-        <div class="modal">
-            <h3 id="modal-title" class="modal-title">Confirm Action</h3>
-            <p id="modal-message" class="modal-message">Are you sure you want to proceed?</p>
-            <div class="modal-actions">
-                <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-                <button id="modal-confirm" class="btn btn-red">Confirm</button>
-            </div>
+        
+        <div class="table-container">
+            <table id="dotPhraseTable">
+                <thead>
+                    <tr>
+                        <th>Dot Phrase</th>
+                        <th>Brief Description</th>
+                        <th>Category</th>
+                        <th>SOAP Location</th>
+                        <th>Full Description</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // Simple Excel reading function using built-in JavaScript
-        function parseCSV(text) {
-            const lines = text.split('\n');
-            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-            const data = [];
-            
-            for (let i = 1; i < lines.length; i++) {
-                if (lines[i].trim()) {
-                    const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-                    const row = {};
-                    headers.forEach((header, index) => {
-                        row[header] = values[index] || '';
-                    });
-                    data.push(row);
-                }
-            }
-            return data;
+        const dotPhrases = [
+            {phrase: ".10", brief: "1 set of 10 repetitions", category: "Exercise", soap: "O", full: "1 set of 10 repetitions"},
+            {phrase: ".15", brief: "1 set of 15 repetitions", category: "Exercise", soap: "O", full: "1 set of 15 repetitions"},
+            {phrase: ".20", brief: "1 set of 20 repetitions", category: "Exercise", soap: "O", full: "1 set of 20 repetitions"},
+            {phrase: ".210", brief: "2 sets of 10 repetitions", category: "Exercise", soap: "O", full: "2 sets of 10 repetitions"},
+            {phrase: ".215", brief: "2 sets of 15 repetitions", category: "Exercise", soap: "O", full: "2 sets of 15 repetitions"},
+            {phrase: ".220", brief: "2 sets of 20 repetitions", category: "Exercise", soap: "O", full: "2 sets of 20 repetitions"},
+            {phrase: ".10mwtest", brief: "10m Walk Test", category: "Assessment", soap: "O", full: "10m Walk Test"},
+            {phrase: ".15mm", brief: "15mm needle", category: "Treatment", soap: "O", full: "15mm length .16 diameter needle"},
+            {phrase: ".30", brief: "30mm needle", category: "Treatment", soap: "O", full: "30mm length .12 diameter needle"},
+            {phrase: ".30scst", brief: "30 second Chair Stand Test", category: "Assessment", soap: "O", full: "30 second Chair Stand Test"},
+            {phrase: ".50", brief: "50mm needle", category: "Treatment", soap: "O", full: "50mm length .30 diameter needle"},
+            {phrase: ".5txstst", brief: "5 times Sit to Stand Test", category: "Assessment", soap: "O", full: "5 times Sit to Stand Test"},
+            {phrase: ".6mwt", brief: "6 minute Walk Test", category: "Assessment", soap: "O", full: "6 minute Walk Test"},
+            {phrase: ".75", brief: "75mm needle", category: "Treatment", soap: "O", full: "75mm length .30 diameter needle"},
+            {phrase: ".a", brief: "Assessment template", category: "Documentation", soap: "A", full: "Patient demonstrates [improvement][no change][regression] in [strength, ROM, balance, pain, gait, functional mobility]. Progress toward goals is [on track][limited/delayed][due to][pain, compliance, cormorbidities, scheduling]. Continued skilled PT services are [warranted][not indicated] to address remaining deficits and maximize functional outcomes."},
+            {phrase: ".abd", brief: "abduction", category: "Anatomy", soap: "General", full: "abduction"},
+            {phrase: ".abdominal", brief: "Abdominal fascial release", category: "Treatment", soap: "O", full: "Abdominal fascial release - In supine we addressed multi-direction abdominal fascia release with a lateral to medial pull for an indirect release with a unilateral release on each side. In supine we did abdominal fascia release with a hold with a bilateral lateral to medial indirect technique and directional release. Endopelvic fascia release surrounding the bladder with more restriction noted on the []. Abdominal fascia release from inferior to superior where restriction was noted using a direct and then an indirect technique. Abdominal/Iliac release with tissue restriction noted on the [] today. We utilized a scoop and slack of tissues towards the umbilicus while using an indirect & tri-planar motion to find the direction of ease. We then performed a long hold for a gentle release. We completed this []."},
+            {phrase: ".abstab", brief: "Abdominal stabilization exercises", category: "Exercise", soap: "O", full: "Supine transversus abdominus set for [set/reps] with 3-5 second holds. Supine marching for [set/reps] bilaterally, alternating lower extremities. Supine resisted bent leg lift with 5 second isometric hold for [set/reps] bilaterally. Supine abdominal heel slide for [set/reps] bilaterally alternating lower extremities. Supine bridging for [set/reps] with 2-3 second hold and cueing to allow some lumbar flexion with the bridge lift"},
+            {phrase: ".acuteex", brief: "Acute care exercises", category: "Acute Care", soap: "O", full: "Patient completed the following exercises in a supine position for [] to include: ankle pumps, quad sets, heel slides, SAQ, hip abduction/adduction, SLR, and glut sets."},
+            {phrase: ".acuteleftin", brief: "Acute care safety precautions", category: "Acute Care", soap: "O", full: "Fall risk precautions observed. Gait belt used for mobility. Patient left [in chair/bed] with call light in reach."},
+            {phrase: ".acutenote", brief: "Acute care documentation template", category: "Acute Care", soap: "General", full: "[]: [] minutes of []. S: Patient reports []. Pain: []/10 (location: []). O: Start time: []; End time: []; Total time: []; Physical therapy staff present: Samantha LeMay, PT, DPT and []. Observation: []. Bed mobility: []. Transfers: Sit-Stand: []; Bed-Chair: []. Ambulation: [] ft; Device: []; Assist: []. Stairs: [] steps; Assist: []; Device: []. Static balance: []; Dynamic balance: [] during gait, [] during turns. Observed deficits: []. Gait belt used during all mobility. Patient was left [] with call light and bedside table within reach. Alarm was activated. A: Patient demonstrates [] compared to prior session. Limiting factors: []. Overall tolerance: []. P: Patient is progressing as initially anticipated without need for modification to the plan. Continue PT per POC progressing as tolerated towards established goals."},
+            {phrase: ".acuterefusal", brief: "Patient declined therapy", category: "Acute Care", soap: "S", full: "Patient declined physical therapy session this []. Patient was educated on the importance of mobility and safety with transfers. Patient stated []. Will attempt to see patient again []."},
+            {phrase: ".acuterisk", brief: "Risk statement", category: "Acute Care", soap: "A", full: "increased risk for more falls, a decline in overall mobility and independence, and/or reduced quality of life."},
+            {phrase: ".acutestairs", brief: "Stairs assessment", category: "Acute Care", soap: "O", full: "Stairs: Patient negotiated [] steps with [no AD][device] with [no railing][bilateral hand rails]; assist []; Pattern: [reciprocal][step-to]; Deviations: [decreased foot clearance, ][eccentric control, ][increase UE support, ][hesitation, ][loss of balance][none]"},
+            {phrase: ".ad", brief: "assistive device", category: "Anatomy", soap: "General", full: "assistive device"},
+            {phrase: ".add", brief: "adduction", category: "Anatomy", soap: "General", full: "adduction"},
+            {phrase: ".airdyne", brief: "Airdyne exercise", category: "Exercise", soap: "O", full: "Airdyne x [] minutes for [full][partial] [forward][backward] revolutions, [as warm-up to promote circulation and prepare for therapeutic exercise][as a way to work on improving ROM]"},
+            {phrase: ".andrew", brief: "Andrew Wendland, PTA", category: "Staff", soap: "General", full: "Andrew Wendland, PTA"},
+            {phrase: ".ant", brief: "anterior", category: "Anatomy", soap: "General", full: "anterior"},
+            {phrase: ".apfq", brief: "Australian Pelvic Floor Questionnaire", category: "Outcome", soap: "O", full: "Australian Pelvic Floor Questionnaire"},
+            {phrase: ".ava", brief: "Ava Gonsorowski, PA-C", category: "Staff", soap: "General", full: "Ava Gonsorowski, PA-C"},
+            {phrase: ".balancetx", brief: "Balance training", category: "Exercise", soap: "O", full: "[Static][Dynamic] balance on [firm surface][foam surface][BOSU]; [tandem][SLS][staggered stance]; eyes open][eyes closed]; [with frequent UE support][with constant UE support][with occasional UE support] [for safety] [without UE support]"},
+            {phrase: ".berg", brief: "Berg Balance Assessment", category: "Assessment", soap: "O", full: "Berg Balance Assessment"},
+            {phrase: ".bi", brief: "biceps", category: "Anatomy", soap: "General", full: "biceps"},
+            {phrase: ".bil", brief: "bilateral", category: "Anatomy", soap: "General", full: "bilateral"},
+            {phrase: ".bils", brief: "bilaterally", category: "Anatomy", soap: "General", full: "bilaterally"},
+            {phrase: ".bm", brief: "bowel movement", category: "Pelvic", soap: "S", full: "bowel movement"},
+            {phrase: ".bosubalance", brief: "BOSU balance training", category: "Exercise", soap: "O", full: "[Static][Dynamic] balance for [] [minute][second] trials; Balance: [good/fair/poor]; Deviations: [bilateral UE support][unilateral UE support][step off the BOSU]"},
+            {phrase: ".bosulunge", brief: "BOSU lunges", category: "Exercise", soap: "O", full: "Lunges on BOSU for [sets/reps]; Balance: [good/fair/poor]; Deviations: [bilateral UE support][unilateral UE support][step off the BOSU]"},
+            {phrase: ".bosusquat", brief: "BOSU squats", category: "Exercise", soap: "O", full: "Squats on BOSU for [sets/reps]; Balance: [good/fair/poor]; Deviations: [bilateral UE support][unilateral UE support][step off the BOSU]"},
+            {phrase: ".bosustep", brief: "BOSU step-ups", category: "Exercise", soap: "O", full: "[Forward/lateral/backward] step-ups on BOSU for [sets/reps]; Balance: [good/fair/poor]; Deviations: [bilateral UE support][unilateral UE support][step off the BOSU]"},
+            {phrase: ".breathing", brief: "Breathing exercises", category: "Exercise", soap: "O", full: "Breathing and Abdominal pressure management (each of these were completed for 5-8 repetitions) - Prolonged inhalation to a count of 4, Prolonged exhalation to a count of 4, Forced exhalation with vocal articulations of - Ha, s, Sh, Fa, Slow breathing - Slow diaphragmatic breaths - Progressive breathing 4-7-8 breath - Skull Shining Breath - Alternate nostril breathing, Breathing with restorative movement with cat-cow stretches and then leg rolling. Patient was provided with a copy of these exercise for their home exercise program and a copy has been retained in their chart."},
+            {phrase: ".brittany", brief: "Brittany McCullough, DNP, APRN, FNP", category: "Staff", soap: "General", full: "Brittany McCullough, DNP, APRN, FNP"},
+            {phrase: ".broadway", brief: "Steven Broadway, MD", category: "Staff", soap: "General", full: "Steven Broadway, MD"},
+            {phrase: ".bryan", brief: "Bryan Hunter, DNP, CRNA, NSPM-C", category: "Staff", soap: "General", full: "Bryan Hunter, DNP, CRNA, NSPM-C"},
+            {phrase: ".bulb", brief: "bulbocavernosus", category: "Anatomy", soap: "General", full: "bulbocavernosus"},
+            {phrase: ".bungee", brief: "Bungee resistance stepping", category: "Exercise", soap: "O", full: "Resisted Stepping: [sets/reps] of stepping against [15 lb][20 lb][25 lb] resistance bungee for each of the following; [R and L lateral stepping], [forward stepping] and [retro stepping]"},
+            {phrase: ".bungeeresist", brief: "Bungee resistance exercises", category: "Exercise", soap: "O", full: "Resisted [squat][lunge][sit to stand]: [15 lb][20 lb][25 lb] resistance bungee provided [anterior][posterior][lateral] pull for [sets/reps] [with use of upper extremities][without use of upper extremities]"},
+            {phrase: ".c", brief: "coccygeus", category: "Anatomy", soap: "General", full: "coccygeus"},
+            {phrase: ".carly", brief: "Carly Ritchie, MD", category: "Staff", soap: "General", full: "Carly Ritchie, MD"},
+            {phrase: ".cc", brief: "cable column", category: "Treatment", soap: "General", full: "cable column"},
+            {phrase: ".chad", brief: "Chad Johnson, APRN, CRNA, NSPM-C", category: "Staff", soap: "General", full: "Chad Johnson, APRN, CRNA, NSPM-C"},
+            {phrase: ".change", brief: "Patient reports change", category: "Documentation", soap: "S", full: "Patient reports a change in their [impairment][functional limitations][disability status] to include: []"},
+            {phrase: ".charge", brief: "Service time documentation", category: "Documentation", soap: "General", full: "[] minutes of []"},
+            {phrase: ".charles", brief: "Charles Kendall, MD", category: "Staff", soap: "General", full: "Charles Kendall, MD"},
+            {phrase: ".charthold", brief: "Chart on hold", category: "Documentation", soap: "P", full: "Chart placed on hold for physical therapy. Will reinitiate plan of care when patient is ready/able to participate or when updated referral/medical clearance is received."},
+            {phrase: ".cq", brief: "Constipation Questionnaire", category: "Outcome", soap: "O", full: "Constipation Questionnaire"},
+            {phrase: ".cr", brief: "crutches", category: "Treatment", soap: "General", full: "[axillary][Lofstrand] crutches"},
+            {phrase: ".cues", brief: "Cueing for exercises", category: "Treatment", soap: "O", full: "Cues: [verbal][visual][tactile] cues for []"},
+            {phrase: ".cw", brief: "cuff weights", category: "Treatment", soap: "General", full: "cuff weights"},
+            {phrase: ".daniel", brief: "Daniel Palmquist, MD", category: "Staff", soap: "General", full: "Daniel Palmquist, MD"},
+            {phrase: ".dawn", brief: "Dawn Jubie, PTA", category: "Staff", soap: "General", full: "Dawn Jubie, PTA"},
+            {phrase: ".db", brief: "diaphragmatic breathing", category: "Exercise", soap: "General", full: "diaphragmatic breathing"},
+            {phrase: ".dcap", brief: "Discharge assessment/plan", category: "Documentation", soap: "A/P", full: "A: Patient was seen in physical therapy for a total of [] service dates to include initial evaluation, []. Patient made progress towards established goals as documented above. Criteria for discontinuation of services: [Goals met][Independent with HEP][Return to prior function][Plateau in progress][Patient request] P: Patient is discharged from physical therapy. Patient [has][does not have] a home exercise program in place."},
+            {phrase: ".df", brief: "dorsiflexion", category: "Anatomy", soap: "General", full: "dorsiflexion"},
+            {phrase: ".dilator", brief: "Dilator training", category: "Pelvic", soap: "O", full: "Dilator Training - Internal vaginal pelvic floor muscle (PFM) work with pt consent requested prior, obtained prior, obtained during and on file. A medical chaperone was offered and patient declined. Patient obtained the [brand] vaginal dilators set [size]. Patient was educated on washing prior to and after use. Patient was educated on lubrication prior to insertion as well as how to insert the dilator. This writer performed the first insertion - patient reported [pain, stretching, etc] and the dilator was in place for 10 minutes. After removal of the dilator by this writer patient was then instructed on how to insert the dilator independently which she was able to do. Patient utilized a size [#] dilator for this session and we discussed when/how to advance the dilator size. Patient was instructed to complete dilator training at least one time per day for up to 10 minutes while completing relaxation breathing."},
+            {phrase: ".dn", brief: "dry needling", category: "Modality", soap: "General", full: "dry needling"},
+            {phrase: ".dra", brief: "diastasis rectus abdominus", category: "Assessment", soap: "General", full: "diastasis rectus abdominus (DRA)"},
+            {phrase: ".dryneedle", brief: "Dry needling procedure", category: "Modality", soap: "O", full: "Dry needling to [homeostatic point][paravertebral point][symptomatic point] on the [right][left] [muscle] ([#] x length/diameter) in a [] position."},
+            {phrase: ".dryneedlenote", brief: "Dry needling documentation", category: "Documentation", soap: "General", full: "[] minutes of dry needling performed [self-pay option, payment made after session] [bundled session]. Consent: Risks, expected soreness, and aftercare reviewed. Patient gave [verbal] [written] [verbal and written] consent. Written consent on file. [Waiver for non-covered services completed.] [ABN for non-covered services completed.] Procedure: Site identified by palpation, skin clear of defects. Area prepped with 91% isopropyl alcohol. Standard precautions observed (hand hygiene, gloves, sterile single-use needles, sharps disposal). Dry needling performed at [homeostatic][paravertebral][symptomatic] points, on the [left][right][bilateral] [muscle/region] with [#] needle(s) ([length/diameter]) in [] position. Response: Tolerated with [no] [minimal] [moderate] discomfort. No adverse events noted."},
+            {phrase: ".dw", brief: "difficulty walking", category: "Assessment", soap: "S", full: "difficulty walking"},
+            {phrase: ".eas", brief: "external anal sphincter", category: "Anatomy", soap: "General", full: "external anal sphincter"},
+            {phrase: ".er", brief: "external rotation", category: "Anatomy", soap: "General", full: "external rotation"},
+            {phrase: ".erin", brief: "Erin Louks-Smith, MD", category: "Staff", soap: "General", full: "Erin Louks-Smith, MD"},
+            {phrase: ".es", brief: "electrical stimulation", category: "Modality", soap: "General", full: "electrical stimulation"},
+            {phrase: ".ev", brief: "eversion", category: "Anatomy", soap: "General", full: "eversion"},
+            {phrase: ".evala", brief: "Evaluation assessment template", category: "Evaluation", soap: "A", full: "Assessment/Functional Level: (Reason for Referral) They demonstrate [significant][moderate][mild] impairments that impact their ability to perform daily activities and maintain an optimal quality of life. Physical therapy services are medically necessary to address these specific impairments: [strength deficits, ][range of motion impairment, ][mobility restrictions, ][and pain]. They would benefit from skilled physical therapy to address these impairments to maximize their functional abilities and improve their overall level of function. Rehab Potential: [] Rehab Motivation: []"},
+            {phrase: ".evalbalance", brief: "Balance evaluation", category: "Evaluation", soap: "O", full: "Static balance: [Ind][SBA][CGA][Min A] on [firm][foam] surface with [eyes open][closed]. Dynamic balance: [Ind][SBA][CGA][Min A] during [weight shifting][reaching][turning][gait tasks]. Observed deficits[LOB][sway][step strategy][UE support][none noted]. Overall balance: [Good][Fair][Poor]"},
+            {phrase: ".evalcc", brief: "Chief complaint evaluation", category: "Evaluation", soap: "S", full: "• Chief Complaint: [] • Social History/Living Environment: Patient lives in [a house][an apartment][Assisted Living] [independently][with their spouse][with ] Number of stairs inside: [] [with][without] a railing Number of stairs outside: [] [with][without] a railing Ascends the stairs [reciprocally][one at a time] Descends the stairs [reciprocally][one at a time] Patient relies on the railing to [ascend][descend][ascend and descend] the stairs • Occupation: [] • General Health Status: [Self-report][Caregiver/Family Report]: [Excellent][Good][Fair][Poor] • Medical/Surgical History: [] • Functional Limitations/Status and Activity Level: Current: [] Prior: [] • Falls/Balance Difficulty: Patient [does][does not] fall Patient [does][does not] report balance difficulty •Assistive Device: Patient [does][does not] use an assistive device. They use a [] during functional activities"},
+            {phrase: ".evalgait", brief: "Gait evaluation", category: "Evaluation", soap: "O", full: "• Use of assistive device: [] • Assist: [] • Gait pattern: [step-through, ][step-to, ][reciprocal, ][decreased stance time on the right, ][decreased stance on the left, ][decreased lumbopelvic rotation, ][Trendelenburg, ][circumduction, ][scissoring, ][wide BOS, ][narrow BOS] • Deviations: [decreased cadence, ][decreased step length, ][decreased arm swing, ][decreased heel strike, ][foot drop, ][decreased toe off, ][path deviation, ][loss of balance] • Estimated current distance tolerance: []"},
+            {phrase: ".evalheadaches", brief: "Headache evaluation", category: "Evaluation", soap: "S", full: "• Location: [] region • Description: [] • Pain intensity ranges from []/10 to []/10 • Frequency: [], lasting [] • Aggravating factors: [] • Relieving factors: [] • Associated symptoms: [] • Denies sudden severe onset, trauma, or neuro deficits: []"},
+            {phrase: ".evalmobility", brief: "Mobility evaluation", category: "Evaluation", soap: "O", full: "Mobility Assessment Bed Mobility: [Ind][Mod Ind][Min A][Mod A][Max A][Dependent] Sit to Stand:[Ind][Mod Ind][Min A][Mod A][Max A][Dependent] Gait:[Ind][Mod Ind][Min A][Mod A][Max A][Dependent]"},
+            {phrase: ".evalpain", brief: "Pain evaluation", category: "Evaluation", soap: "S", full: "• Location: [] • Pain scale: []/10 on average, []/10 with activity • Pain is: [getting better][getting worse][staying the same]"},
+            {phrase: ".evalpted", brief: "Patient education evaluation", category: "Evaluation", soap: "General", full: "• The outcome of today's initial evaluation and the plan for future treatment sessions • Visual models were used to show the patient how muscles and/or nerves relate to their symptoms."},
+            {phrase: ".evalstairs", brief: "Stairs evaluation", category: "Evaluation", soap: "O", full: "Stairs: • Number of stairs inside []; Railing [] • Number of stairs outside []; Railing [] • Ascend: [Reciprocal][One at a time] • Descend: [Reciprocal][One at a time]"},
+            {phrase: ".evalsub", brief: "Subjective evaluation template", category: "Evaluation", soap: "S", full: "• Chief Complaint: [] • Social History/Living Environment: Patient lives in [a house][an apartment][Assisted Living] [independently][with their spouse][with ] Stairs: • Number of stairs inside []; Railing [] • Number of stairs outside []; Railing [] • Ascend: [Reciprocal][One at a time] • Descend: [Reciprocal][One at a time] Occupation: [] General Health Status: [Selfreport][Caregiver/Family Report]: [] Medical/Surgical History: [] Functional Status/Limitations and Activity Level: • Current: [] • Prior: [] Falls/Balance Difficulty: • Patient [does][does not] fall • Patient [does][does not] report balance difficulty Assistive Device: Patient [does][does not] use an assistive device. [They use a]"},
+            {phrase: ".evalsystems", brief: "Systems evaluation", category: "Evaluation", soap: "O", full: "Cardiovascular: • Blood Pressure: []/[] mmHg • Heart Rate: [] bpm • O2 sats on Room Air: []% Integumentary: Presence of Scar: [] Skin Color: [] Skin Integrity: [] - Edema Location: [] Measurement: Number cm measured at [] Musculoskeletal • Functional Strength - Squat: [unable][able with compensation][able without compensation] - Sit to stand: [with][without] use of bilateral upper extremities - Lunge: [unable][able with compensation][able without compensation]"},
+            {phrase: ".ex", brief: "Exercise template", category: "Exercise", soap: "O", full: "[exercise] - [sets/reps], with [# or color] [cuff weight][dumbbells][resistance at the cable column][TheraBand]; [.cues]"},
+            {phrase: ".exdb", brief: "Dumbbell exercises", category: "Exercise", soap: "O", full: "[] with []# dumbbells ([]# in each hand) for [reps/sets]"},
+            {phrase: ".exl", brief: "Lunge exercises", category: "Exercise", soap: "O", full: "[Lunges] for [sets/reps] [unilateral L LE][unilateral R LE][alternating LEs]; UE support: [none][unilateral][bilateral]; Load: [none][# dumbbells]"},
+            {phrase: ".exs", brief: "Squat exercises", category: "Exercise", soap: "O", full: "[Squats] for [sets/reps]; UE support: [none][unilateral][bilateral]; Load: [none][# dumbbells]"},
+            {phrase: ".ext", brief: "extension", category: "Anatomy", soap: "General", full: "extension"},
+            {phrase: ".f", brief: "Fair", category: "Assessment", soap: "General", full: "Fair"},
+            {phrase: ".ffi", brief: "Foot Function Index", category: "Outcome", soap: "O", full: "Foot Function Index"},
+            {phrase: ".fga", brief: "Functional Gait Assessment", category: "Assessment", soap: "O", full: "Functional Gait Assessment"},
+            {phrase: ".fiq", brief: "Fecal Incontinence Questionnaire", category: "Outcome", soap: "O", full: "Fecal Incontinence Questionnaire"},
+            {phrase: ".fl", brief: "flexion", category: "Anatomy", soap: "General", full: "flexion"},
+            {phrase: ".g", brief: "Good", category: "Assessment", soap: "General", full: "Good"},
+            {phrase: ".gaittx", brief: "Gait training", category: "Exercise", soap: "O", full: "Patient ambulated [] feet [with a] [assist] Gait pattern; [step-through, ][step-to, ][reciprocal, ][decreased stance time on the right, ][decreased stance on the left, ][Trendelenburg, ][circumduction, ][scissoring, ][wide BOS, ][narrow BOS] Deviations: [decreased cadence, ][decreased step length, ][decreased arm swing, ][decreased heel strike, ][foot drop, ][decreased toe off, ][path deviation, ][loss of balance] Tolerance: [well tolerated][fatigue noted][SOB]"},
+            {phrase: ".gas", brief: "gastrocnemius", category: "Anatomy", soap: "General", full: "gastrocnemius"},
+            {phrase: ".gh", brief: "glenohumeral", category: "Anatomy", soap: "General", full: "glenohumeral"},
+            {phrase: ".ghpb", brief: "Genital Hiatus and Perineal Body measurements", category: "Pelvic", soap: "O", full: "Genital Hiatus (GH) and Perineal Body (PB) Measurements: GH: [] cm PB: [] cm GH + PB: [] cm Results: [Normal][Mild][Moderate][Severe] Ballooning"},
+            {phrase: ".glen", brief: "Glen Palokangas, APRN, CRNA, NSPM-C", category: "Staff", soap: "General", full: "Glen Palokangas, APRN, CRNA, NSPM-C"},
+            {phrase: ".gm", brief: "Goal Met", category: "Documentation", soap: "A", full: "Goal Met"},
+            {phrase: ".gnm", brief: "Goal Not Met", category: "Documentation", soap: "A", full: "Goal Not Met"},
+            {phrase: ".goals", brief: "Goals template", category: "Documentation", soap: "P", full: "Short Term Goals (within 6 weeks) 1. Patient will achieve at least 75% of normal range of motion in the affected area to enable basic activities of daily living. 2. Patient will demonstrate pain levels less than or equal to []/10 during functional tasks lasting up to [] minutes. 3. Patient will ambulate household distances of 100 to 200 feet [with][without] an assistive device and less than or equal to []/10 pain. 4. Patient will perform bed mobility and transfers with [] assistance using proper body mechanics. 5. Patient will demonstrate proper postural alignment during sitting and standing for up to [] minutes. 6. Patient will tolerate light functional activities for [] minutes without increased symptoms. 7. Patient will demonstrate improved strength to []/ 5 on manual muscle testing in the affected area to promote increased strength for functional mobility. Long Term Goals (within 12 weeks) 1. Patient will be independent with a home exercise program to promote self-management of symptoms. 2. Patient will ambulate community distances greater than or equal to 300 feet independently with normalized gait pattern [with][without] an assistive device. 3. Patient will report greater than or equal to []% reduction in pain frequency and intensity during all activities. 4. Patient will demonstrate functional strength greater than or equal to []/ 5 on manual muscle testing to support all daily activities. 5. Patient will lift and carry objects weighing at least [] pounds using proper body mechanics without pain. 6. Patient will ascend and descend stairs independently with proper technique. 7. Patient will maintain dynamic balance during functional tasks without falls. 8. Patient will tolerate greater than or equal to 30 minutes of continuous functional activity with minimal fatigue. 9. Patient will sleep through the night without symptom-related interruptions greater than or equal to 5 nights per week. 10. Patient will demonstrate home exercise program adherence greater than or equal to 5 times per week and verbalize injury prevention strategies."},
+            {phrase: ".gpm", brief: "Goal Partially Met", category: "Documentation", soap: "A", full: "Goal Partially Met"},
+            {phrase: ".gpmcon", brief: "Goal Partially Met - Continue", category: "Documentation", soap: "A", full: "Goal Partially Met - Goal to Continue"},
+            {phrase: ".gr", brief: "Goal revised", category: "Documentation", soap: "A", full: "Goal revised to []"},
+            {phrase: ".greg", brief: "Greg White, DNP, APRN, FNP", category: "Staff", soap: "General", full: "Greg White, DNP, APRN, FNP"},
+            {phrase: ".gt", brief: "gait training", category: "Exercise", soap: "General", full: "gait training"},
+            {phrase: ".hc", brief: "Hurry cane", category: "Treatment", soap: "General", full: "Hurry cane"},
+            {phrase: ".hdi", brief: "Headache Disability Index", category: "Outcome", soap: "O", full: "Headache Disability Index"},
+            {phrase: ".hep", brief: "Home exercise program - singular", category: "Documentation", soap: "O", full: "patient was provided with a copy of this exercise for their home exercise program and a copy has been retained in their chart. Repeat demonstration indicates patient safe to perform independently."},
+            {phrase: ".heps", brief: "Home exercise program - plural", category: "Documentation", soap: "O", full: "patient was provided with a copy of these exercises for their home exercise program and a copy has been retained in their chart. Repeat demonstration indicates patient safe to perform independently."},
+            {phrase: ".hipstretch", brief: "Hip stretching routine", category: "Exercise", soap: "O", full: "Full squat - hold for 1 minute x 2. Full squat with active ROM rotation for the thoracic spine x 10 to each side with 5-10 sec hold. Child's pose with 1 minute hold. Child's pose with thoracic rotation for 30 second holds x 3 to each side. Deep lunge rotational stretch for 1 set of 3 to each side with 10 second holds. Adductor stretch from a kneeling position for 3 repetitions on each side for 1 set with 30 second holds. 90/90 hip flexion stretch in a seated position for 3 sets on each side for one 30 second hold"},
+            {phrase: ".home", brief: "home exercise program", category: "Documentation", soap: "General", full: "home exercise program"},
+            {phrase: ".horabd", brief: "horizontal abduction", category: "Anatomy", soap: "General", full: "horizontal abduction"},
+            {phrase: ".horadd", brief: "horizontal adduction", category: "Anatomy", soap: "General", full: "horizontal adduction"},
+            {phrase: ".hp", brief: "homeostatic point", category: "Treatment", soap: "General", full: "homeostatic point"},
+            {phrase: ".hs", brief: "Heidi Stone", category: "Staff", soap: "General", full: "Heidi Stone"},
+            {phrase: ".hu", brief: "humeroulnar", category: "Anatomy", soap: "General", full: "humeroulnar"},
+            {phrase: ".iastm", brief: "Instrument-assisted soft tissue mobilization", category: "Modality", soap: "O", full: "Instrument-assisted soft tissue mobilization (IASTM) to [location] for [] minutes using [RockBlades Mohawk tool][cupping][Graston tool]; Focus: [scar mobility, ][myofascial release, ][tissue extensibility]; Response: [redness][warmth][improved mobility][reduced discomfort]; Tolerance: [poor tolerance due to][fair tolerance due to][good tolerance]"},
+            {phrase: ".ic", brief: "Informed consent", category: "Documentation", soap: "General", full: "Treatment plan and progression, including risks and benefits, have been discussed with the pt. and the pt. voiced an understanding and was in agreement with the plan of care."},
+            {phrase: ".icav", brief: "ischiocavernosus", category: "Anatomy", soap: "General", full: "ischiocavernosus"},
+            {phrase: ".iccog", brief: "Informed consent with cognitive impairment", category: "Documentation", soap: "General", full: "This plan of care and progression of care were discussed with the pt and while this patient did demonstrate signs and symptoms that are consistent with cognitive impairments and/or confusion, patient did voice an understanding and agreement upon plan of care and was able to demonstrate ready participation."},
+            {phrase: ".ico", brief: "ischiococcygeus", category: "Anatomy", soap: "General", full: "ischiococcygeus"},
+            {phrase: ".icpelvic", brief: "Internal pelvic assessment", category: "Pelvic", soap: "O", full: "Internal vaginal pelvic floor muscle (PFM) assessment with pt consent requested prior, obtained prior, obtained during and on file. A medical chaperone was offered, and patient declined."},
+            {phrase: ".ie", brief: "initial evaluation", category: "Evaluation", soap: "General", full: "initial evaluation"},
+            {phrase: ".ifc", brief: "Interferential current", category: "Modality", soap: "O", full: "We utilized the Zynex NexWave unit for IFC Combo Location: Crossed Red and Black leads at the [] Channels: 2 Settings: Intensity set to []mA to patient tolerance Patient positioning: [Side lying][Sitting] Time: [] minutes Patient education: Provided on this modality, risks and benefits, and what to expect during treatment"},
+            {phrase: ".ili", brief: "iliococcygeus", category: "Anatomy", soap: "General", full: "iliococcygeus"},
+            {phrase: ".inc", brief: "incontinence", category: "Pelvic", soap: "General", full: "incontinence"},
+            {phrase: ".inf", brief: "inferior", category: "Anatomy", soap: "General", full: "inferior"},
+            {phrase: ".infra", brief: "infraspinatus", category: "Anatomy", soap: "General", full: "infraspinatus"},
+            {phrase: ".inv", brief: "inversion", category: "Anatomy", soap: "General", full: "inversion"},
+            {phrase: ".ionto", brief: "Iontophoresis", category: "Modality", soap: "O", full: "Iontophoresis with ;4% dexamethasone to [location] at [mA-min] mA-min dose Electrode placement: [placement] Purpose: anti-inflammatory Tolerance: [no adverse reaction][patient reported pain and iontophoresis was discontinued]"},
+            {phrase: ".ir", brief: "internal rotation", category: "Anatomy", soap: "General", full: "internal rotation"},
+            {phrase: ".isometrics", brief: "Isometric exercises", category: "Exercise", soap: "O", full: "[Left][Right] [Shoulder][Ankle] Isometrics - 5 sec holds for [sets/reps] to include: []; [verbal][tactile] cueing for correct technique and cueing to not perform a maximal contraction."},
+            {phrase: ".pulleys", brief: "Pulley exercises", category: "Exercise", soap: "O", full: "Pulleys facing [toward] [away from] the wall for a total of [] minutes in a shoulder scaption/flexion motion."},
+            {phrase: ".scapex", brief: "Scapular exercises", category: "Exercise", soap: "O", full: "Dynamic scapular strengthening at the wall in 4 directions completed for[sets/reps] with [the R UE][the L UE][each UE seperately]"},
+            {phrase: ".scaprom", brief: "Scapular ROM", category: "Exercise", soap: "O", full: "Passive scapulothoracic mobility, all planes - [sets/reps]; educated patient about GH joint biomechanics"},
+            {phrase: ".jackie", brief: "Jackie Lindberg, DNP", category: "Staff", soap: "General", full: "Jackie Lindberg, DNP"},
+            {phrase: ".jessica", brief: "Jessica Woodward-Lavan, MD, FAAFP", category: "Staff", soap: "General", full: "Jessica Woodward-Lavan, MD, FAAFP"},
+            {phrase: ".joanna", brief: "Joanna Robnik, MD", category: "Staff", soap: "General", full: "Joanna Robnik, MD"},
+            {phrase: ".jointanklemob", brief: "Ankle joint mobilization", category: "Treatment", soap: "O", full: "Joint Mobilization • Grade: [] for [sets/reps][minutes] • Direction: [AP talocrural][PA talocrural][subtalar][midfoot] • Focus: improve [DF][PF][inversion][eversion][mobility] • Response: [improved motion][decreased pain][audible cavitation][soreness][no adverse response] • Tolerance: [Good, Fair, Poor] with [discomfort noted][no adverse reaction]"},
+            {phrase: ".jointevalcerv", brief: "Cervical joint assessment", category: "Assessment", soap: "O", full: "Joint Assessment • Patient demonstrates impairment in a P/A direction at [] • Patient demonstrates impairment in a lateral direction at []"},
+            {phrase: ".jointevallum", brief: "Lumbar joint assessment", category: "Assessment", soap: "O", full: "Joint Assessment • Patient demonstrates impairement in a P/A direction at [] • Patient demonstrates impairment in a lateral direciton at [] • Patient demosntrates an [FRS][ERS] [] at [] • Patient demonstrates a [L on R backwards sacral torsion][R on L backwards sacral torsion]"},
+            {phrase: ".jointhipmob", brief: "Hip joint mobilization", category: "Treatment", soap: "O", full: "Joint Mobilization • Grade: [] for [sets/reps][minutes] • Direction: [AP][PA][inferior][distraction] • Focus: improve [pain][joint mobility][segmental alignment][muscle relaxation] • Response: [improved motion][decreased pain][audible cavitation][soreness][no adverse response]; Tolerance: [Good, Fair, Poor] [with][without] [discomfort noted]"},
+            {phrase: ".jointkneemob", brief: "Knee joint mobilization", category: "Treatment", soap: "O", full: "Joint Mobilization • Joint mobilization [tibiofemoral][patellofemoral] • Grade: [] for [sets/reps][minutes] • Direction: [AP][PA][medial][lateral][superior][inferior] • Focus: [improve [pain][joint mobility][segmental alignment][muscle relaxation] • Response: [improved motion][decreased pain][audible cavitation][soreness][no adverse response]; Tolerance: [Good, Fair, Poor] [with][without] discomfort"},
+            {phrase: ".jointmobeval", brief: "Joint mobility evaluation", category: "Assessment", soap: "O", full: "Joint Assessment • Joint mobility assessed through passive accessory motion testing; Location tested: [Direction] [joint]; Findings: [Hypomobility][Hypermobility]; • Direction: [direction][distraction]; End feel: [firm][hard][soft] • Patient response: [tolerated well][mild discomfort][significant pain] • Clinical implication: [restrictions consistent with impairments in ROM/function][mobility WNL][excessive mobility contributing to instability]."},
+            {phrase: ".jointshldrmob", brief: "Shoulder joint mobilization", category: "Treatment", soap: "O", full: "Joint Mobilization • Joint mobilization to [glenohumeral][AC][SC] scapulothoracic joint • Grade: [] for [sets/reps][minutes] • Direction: [AP][PA][inferior][distraction] • Focus: improve [pain][joint mobility][segmental alignment][muscle relaxation] • Response: [improved motion][decreased pain][audible cavitation][soreness][no adverse response] • Tolerance: [Good, Fair, Poor] [with][without] [discomfort noted]"},
+            {phrase: ".jointspinemob", brief: "Spinal joint mobilization", category: "Treatment", soap: "O", full: "Joint Mobilization • Joint mobilization to the [cervical][thoracic][lumbar] spine at segments [level(s)] • Grade: [] for [sets/reps][minutes] • Technique: [PA (posterior-anterior)][UPAs (unilateral posterior-anterior)][side glides][rotational mobilizations / distraction] • Focus: improve [pain][joint mobility][segmental alignment][muscle relaxation] • Response: [improved motion][decreased pain][audible cavitation][soreness][no adverse response]; Tolerance: [Good, Fair, Poor] with [discomfort noted][no adverse reaction]"},
+            {phrase: ".jointsx", brief: "Joint symptoms", category: "Assessment", soap: "S", full: "Joint Symptoms: [Pain][Clicking][Giving Way][Other]"},
+            {phrase: ".joseph", brief: "Joseph Lemker, MD", category: "Staff", soap: "General", full: "Joseph Lemker, MD"},
+            {phrase: ".kaylen", brief: "Kaylen Kuchel, PTA", category: "Staff", soap: "General", full: "Kaylen Kuchel, PTA"},
+            {phrase: ".kyle", brief: "Kyle Menzel, MD", category: "Staff", soap: "General", full: "Kyle Menzel, MD"},
+            {phrase: ".l", brief: "left", category: "Anatomy", soap: "General", full: "left"},
+            {phrase: ".la", brief: "levator ani", category: "Anatomy", soap: "General", full: "levator ani"},
+            {phrase: ".lbp", brief: "Low Back Pain", category: "Assessment", soap: "General", full: "Low Back Pain"},
+            {phrase: ".le", brief: "lower extremity", category: "Anatomy", soap: "General", full: "lower extremity"},
+            {phrase: ".lefs", brief: "Lower Extremity Functional Scale", category: "Outcome", soap: "O", full: "Lower Extremity Functional Scale"},
+            {phrase: ".les", brief: "lower extremities", category: "Anatomy", soap: "General", full: "lower extremities"},
+            {phrase: ".lisa", brief: "Lisa Leedham, MS, PA-C", category: "Staff", soap: "General", full: "Lisa Leedham, MS, PA-C"},
+            {phrase: ".lt", brief: "lower trapezius", category: "Anatomy", soap: "General", full: "lower trapezius"},
+            {phrase: ".lysholm", brief: "Lysholm Knee Scoring Scale", category: "Outcome", soap: "O", full: "Lysholm Knee Scoring Scale"},
+            {phrase: ".matthew", brief: "Matthew Davies, MD", category: "Staff", soap: "General", full: "Matthew Davies, MD"},
+            {phrase: ".melissa", brief: "Melissa Rose APRN, CNP", category: "Staff", soap: "General", full: "Melissa Rose APRN, CNP"},
+            {phrase: ".mid", brief: "middle trapezius", category: "Anatomy", soap: "General", full: "middle trapezius"},
+            {phrase: ".min", brief: "minutes", category: "Documentation", soap: "General", full: "minutes"},
+            {phrase: ".minno", brief: "Min No Aya Win Clinic", category: "Treatment", soap: "General", full: "Min No Aya Win Clinic"},
+            {phrase: ".mt", brief: "manual therapy", category: "Treatment", soap: "General", full: "manual therapy"},
+            {phrase: ".mw", brief: "muscle weakness", category: "Assessment", soap: "General", full: "muscle weakness"},
+            {phrase: ".n", brief: "No", category: "Documentation", soap: "General", full: "No"},
+            {phrase: ".neg", brief: "Negative", category: "Assessment", soap: "General", full: "Negative"},
+            {phrase: ".neurole", brief: "Neurological exam - Lower extremity", category: "Assessment", soap: "O", full: "• Sensation/Dermatomes: Light Touch: [intact to light touch][impaired sensation at] Dural Tension: [+ sciatic left][+sciatic right][+femoral left][+femoral right] • Dermatomes: LE [impaired at L1][impaired at L2][impaired at L3][impaired at L4][impaired at L5][impaired at S1] • Reflex Integrity Deep tendon reflexes: [WNL][impaired patellar tendon reflex][impaired Achilles tendon reflex] • Musculoskeletal Tone/Involuntary Movement Involuntary Movement Present at [] • Muscle tone: [spasticity][flaccidity][rigidity] at [] • Coordination: [Intact][impaired finger-to-nose test][impaired pronation/supination test][impaired heel-shin rub test]"},
+            {phrase: ".neuroue", brief: "Neurological exam - Upper extremity", category: "Assessment", soap: "O", full: "• Sensation/Dermatomes: Light Touch: [intact to light touch][impaired sensation at] Dural Tension: [+ ulnar left][+ ulnar right][+ radial left][+ radial right][+ median left][+ median right] • Dermatomes: [impaired at C5][impaired at C6][impaired C7][impaired at C8][impaired at T1] Cranial Nerves: [impaired CN I][impaired CN II][impaired CN III][impaired CNIV][impaired CNV][impaired CNVI][impaired CNVII][impaired CNVIII][impaired CN IX][impaired CN X][impaired CN XI][impaired CNXII] • Reflex Integrity Deep tendon reflexes: [WNL][impaired at C5][impaired][impaired C7][impaired C8][impaired T1] • Musculoskeletal Tone/Involuntary Movement Involuntary Movement Present at [] • Muscle tone: [spasticity][flaccidity][rigidity] at [] • Coordination: [Intact][impaired finger-to-nose test][impaired pronation/supination test][impaired heel-shin rub test]"},
+            {phrase: ".neurouele", brief: "Neurological exam - Upper and Lower extremity", category: "Assessment", soap: "O", full: "• Sensation/Dermatomes: Light Touch: [intact to light touch][impaired sensation at] Dural Tension: UE - Tension: [+ ulnar left][+ ulnar right][+ radial left][+ radial right][+ median left][+ median right] LE - [+ sciatic left][+sciatic right][+femoral left][+femoral right] • Dermatomes: UE - [impaired at C5][impaired at C6][impaired C7][impaired at C8][impaired at T1] LE - [impaired at L1][impaired at L2][impaired at L3][impaired at L4][impaired at L5][impaired at S1] • Cranial Nerves: [impaired CN I][impaired CN II][impaired CN III][impaired CNIV][impaired CNV][impaired CNVI][impaired CNVII][impaired CNVIII][impaired CN IX][impaired CN X][impaired CN XI][impaired CNXII] • Reflex Integrity Deep tendon reflexes: UE - [WNL][impaired at C5][impaired][impaired C7][impaired C8][impaired T1] LE - [WNL][impaired patellar tendon reflex][impaired Achilles tendon reflex] • Musculoskeletal Tone/Involuntary Movement Involuntary Movement Present at [] • Muscle tone: [spasticity][flaccidity][rigidity] at [] • Coordination: [Intact][impaired finger-to-nose test][impaired pronation/supination test][impaired heel-shin rub test]"},
+            {phrase: ".nmes", brief: "Neuromuscular electrical stimulation", category: "Modality", soap: "O", full: "We utilized the Zynex NexWave unit for NMES Channels: [1 or 2] Location: Pads were placed with one over the motor point and one distal Settings: 35 Hz, 10:10 off:on was utilized. Intensity was set to []mA which elicited a muscle twitch. Time: [] minutes"},
+            {phrase: ".nopain", brief: "No pain reported", category: "Documentation", soap: "S", full: "Patient denies pain at rest or with activity today."},
+            {phrase: ".npdi", brief: "Neck Pain and Disability Index", category: "Outcome", soap: "O", full: "Neck Pain and Disability Index"},
+            {phrase: ".nr", brief: "neuromuscular re-education", category: "Treatment", soap: "General", full: "neuromuscular re-education"},
+            {phrase: ".nustep", brief: "NuStep exercise", category: "Exercise", soap: "O", full: "NuStep: Time: [] minutes; Level: [] resistance; Miles: []; Cadence maintained at an average of [] spm; Arm/leg involvement: [UE][LE][UE and LE]; Intensity: [light][moderate][vigorous]; Observed: [steady rhythm][decreased endurance][rest break][SOB][good tolerance]"},
+            {phrase: ".odi", brief: "Oswestry Disability Index", category: "Outcome", soap: "O", full: "Revised Oswestry Disability Index Questionnaire"},
+            {phrase: ".oi", brief: "obturator internus", category: "Anatomy", soap: "General", full: "obturator internus"},
+            {phrase: ".pain", brief: "Current pain rating", category: "Documentation", soap: "S", full: "Current pain is rated []/10 pain, located [region]"},
+            {phrase: ".painreassess", brief: "Pain reassessment", category: "Documentation", soap: "O", full: "Patient reports pain decreased to []/10 with reassessment after intervention"},
+            {phrase: ".pal", brief: "Palpation findings", category: "Assessment", soap: "O", full: "Palpation: [Pain][Tenderness][Hypertonicity] noted at: []"},
+            {phrase: ".pelvica", brief: "Pelvic assessment template", category: "Pelvic", soap: "A", full: "who upon exam presents with [urge incontinence, ][stress incontinence, ][prolapse, ][and pelvic pain]. Exam findings are consistent with MD diagnosis of []. Pt demonstrates [decreased strength, ][muscle hypertonicity, ][fascial restriction, ][mechanical dysfunction through the lumbar spine and pelvis] which are impairing her overall level of function. Pt seems well motivated and is a good candidate for PT intervention with emphasis on pelvic floor rehabilitation to help her [improve bladder control, ][decrease pain, ][maximize functional mobility] [and improve quality of life]. Rehab Potential: [] Rehab Motivation: []"},
+            {phrase: ".pelvicbladder", brief: "Pelvic bladder assessment", category: "Pelvic", soap: "S", full: "• History of urologic disorders/surgeries: [Yes][No] • History of abnormal prostate exams/infections: [Yes][No] • Frequency of urination - Voids per day: [] Voids per night: [] - Nocturnal enuresis: [] times per night • Urinary Symptoms: [Trouble initiating urine stream, ][Intermittent/slow stream, ][Painful urination, ][Difficulty stopping flow, ][Difficulty feeling bladder is full, ][Difficulty emptying completely, ][Urine leakage while sleeping, ][Straining, ][Recurrent infections, ][Dribbling after urination, ][Dribbling on way to bathroom, ][Constant leakage, ][Urine spraying, ][Immediate re-void upon standing] • Urge sensation: [Absent][Present]; Ability to delay: [] minutes • Volume of urine: [Small][Medium][Large] • Incontinence episodes per day: [] • Bladder symptoms: [Pain][Spasm][Other] • Incontinence Triggers: [Strong urge to void, ][Seeing, feeling or hearing, running water, ][Transitional Movements, ][Lifting heavy objects, ][Sneezing/coughing/laughing, ][Walking, ][Running, ][Exercising, ][Sleeping,][Other] • Pad Usage: Day: [] [pads][briefs] - [Damp][Wet][Soaked]; Night: [][pads][briefs] - [Damp][Wet][Soaked] • Bladder irritants: [Unknown][Coffee, ][Spicy foods, ][Teas, ][Citrus, ][Caffeine, ][Other] • Average fluid intake: [] oz of water/day; Caffeine: [] cups/day"},
+            {phrase: ".pelvicbowel", brief: "Pelvic bowel assessment", category: "Pelvic", soap: "S", full: "• BMs per day: [] BMs per week [] • Stool Consistency (Bristol Scale): [1,][2,][3,][4,][5,][6,][7] • Bowel Symptoms: [Constipation,][Fecal incontinence,][Urgency,][Straining,][Incomplete evacuation,][Splinting/digitation] • Stool softeners/bowel medications: [Yes][No]"},
+            {phrase: ".pelvicbreath", brief: "Pelvic breathing assessment", category: "Pelvic", soap: "O", full: "Breathing Assessment • Position: [Supine][Sitting][Standing] • [Within normal limits] [Patient demonstrated deficits:] [Increased chest breathing][Decreased lateral translation of lower ribs][Decreased diaphragmatic breathing]"},
+            {phrase: ".pelvicdra", brief: "Pelvic diastasis rectus assessment", category: "Pelvic", soap: "O", full: "• Position: Supine [• Within normal limits] • [] cm separation of rectus abdominis from [] cm above to [] cm below umbilicus; Depth of [] cm at [] cm above umbilicus and [] cm at [] cm below umbilicus • Patient demonstrated [doming,][bulging,invagination,][breath holding with curl up]; Able to improve quality with cues for [TrA][PFM contraction]"},
+            {phrase: ".pelvicextob", brief: "Pelvic external observation", category: "Pelvic", soap: "O", full: "• Visual Inspection: [Normal external anatomy][Scarring,][Atrophy,][Inflammation/irritation,][Asymmetry,][Visible prolapse] • Pelvic Floor Observation: [Visible perineal contraction,][Paradoxical movement,][Appropriate relaxation,][Hypertonicity] • Cough Test: [No leakage][Immediate leakage][Delayed leakage]"},
+            {phrase: ".pelvicextpal", brief: "Pelvic external palpation", category: "Pelvic", soap: "O", full: "• [Normal tone, no pain/tenderness] • [Abnormal findings]:[Pain][Tenderness] at: - Superficial Muscles: [Right][Left][Bilateral]; Pain: []/10 - External Anal Sphincter: [Right][Left][Bilateral]; Pain: []/10 - Coccyx: [Right][Left][Bilateral]; Grade: Pain: []/10 - Sacrotuberous Ligament: [Right][Left][Bilateral]; Grade: []/10"},
+            {phrase: ".pelvicfascial", brief: "Pelvic fascial assessment", category: "Pelvic", soap: "O", full: "• Position: Supine • [Within normal limits] Patient demonstrated [mild][moderate][severe] fascial restrictions at the lower abdomen in the area of the uterus/bladder"},
+            {phrase: ".pelvicintpal", brief: "Pelvic internal palpation", category: "Pelvic", soap: "O", full: "• Levator Ani: [Normal][Tender][Tight][Weak]; Trigger point [Right][Left][Bilaterally]; Pain []/10 • Posterior Fouchette: [Normal][Tender]; Pain []/10 • Puborectalis: [Normal][Tender][Tight][Weak]; Trigger point [Right][Left][Bilaterally]; Pain []/10 • Coccygeus: [Normal][Tender][Tight][Weak]; Trigger point [Right][Left][Bilaterally]; Pain []/10 • Obturator Internus: [Normal][Tender][Tight][Weak]; Trigger point [Right][Left][Bilaterally]; Pain []/10"},
+            {phrase: ".pelvicobgyn", brief: "Pelvic OB/GYN history", category: "Pelvic", soap: "S", full: "• Gravida: [] Para: [] Abortions: [] • Delivery History - Vaginal: [] C-Section: [] - [Episiotomy][Tearing: Grade][Forceps/vacuum][Prolonged labor] - Largest baby weight: [] lbs Gynecologic History • Surgical History: [Hysterectomy][Prolapse repair][Bladder suspension][Mesh placement][C-section][Other pelvic surgery] • Pain with gynecological examinations: [Yes][No] • History of endometriosis: [Yes][No] • History of chronic yeast infections: [Yes][No] Menstrual History • Cycles: [Regular, ][Irregular, ][Amenorrheic, ][Peri-menopausal, ][Painful Periods] • [Post-menopausal] - Age at menopause: []"},
+            {phrase: ".pelvicobpos", brief: "Pelvic observation and posture", category: "Pelvic", soap: "O", full: "General Observations and Posture • Patient ambulated into department [with][without] an assistive device Posture • General Posture: [Forward head,][Rounded shoulders,][Increased thoracic kyphosis,][Anterior pelvic tilt,] [Posterior pelvic tilt] • Lumbo-Pelvic Assessment: [Hip flexor tightness,][Glute weakness,][Core weakness]"},
+            {phrase: ".pelvicpain", brief: "Pelvic pain assessment", category: "Pelvic", soap: "S", full: "• Location: [] • Pain Scale: []/10 on average, []/10 with activity • Pain is: [Getting better][Getting worse][Staying the same] • Pain Description:[Sharp][Burning][Aching][Throbbing][Pressure][Cramping][Electric][Constant]"},
+            {phrase: ".pelvicproeval", brief: "Pelvic prolapse evaluation", category: "Pelvic", soap: "S", full: "Prolapse Assessment • Fullness in vaginal or rectal area: [Yes][No] • Prolapse frequency: [Constant,][Daily,][With Activity]"},
+            {phrase: ".pelvicprolapse", brief: "Pelvic prolapse testing", category: "Pelvic", soap: "O", full: "Prolapse Testing • Position: [Supine][Standing] • Anterior wall laxity: [Yes][No] Posterior wall laxity: [Yes][No] • Genital Hiatus and Perineal Body Measurements - GH (urethral meatus to posterior fourchette): [] cm - PB (posterior fourchette to anterior anus): [] cm - GH + PB: [] cm; Findings: [Normal][Mild][Moderate][Marked][Severe][ballooning]"},
+            {phrase: ".pelvicpsycho", brief: "Pelvic psychosocial assessment", category: "Pelvic", soap: "S", full: "• Strong support system: [Yes][No] • History of abuse (verbal, emotional, physical, sexual): [Yes][No] • Diagnosed with depression or anxiety: [Yes][No]"},
+            {phrase: ".pelvicpted", brief: "Pelvic patient education", category: "Pelvic", soap: "General", full: "• Patient was educated on the outcome of today's evaluation as well as the plan for future treatment sessions. • Patient was educated on items documented in [Self-care management][Therapeutic Activity]"},
+            {phrase: ".pelvicrelaxex", brief: "Pelvic relaxation exercises", category: "Pelvic", soap: "O", full: "Patient was instructed in exercises to work towards relaxing the pelvic floor. These included: [Pelvic Floor Relaxation Supported Sitting in a Chair, ][Supine Diaphragmatic Breathing with Pelvic Floor Lengthening, ][Pelvic Floor Lengthening in Hook lying, ][Diaphragmatic Breathing in Child's Pose with pelvic floor relaxation, ][Happy Baby with Pelvic Floor Lengthening, ][Supported Butterfly Stretch with Pelvic Floor Relaxation, ][Deep Squat with Pelvic Floor Relaxation]"},
+            {phrase: ".pelvics", brief: "Pelvic subjective template", category: "Pelvic", soap: "S", full: "Chief Complaint & History • Patient presents to the clinic today due to: [Urinary incontinence,][Pelvic pain,][Sexual dysfunction,][Pelvic organ prolapse,][Bowel dysfunction,][Post-surgical rehabilitation] • Symptom Onset: [Gradual][Sudden][Post-partum][Post-surgical]; Duration: [] • Symptoms: [Are Staying the same][Are Getting worse][Are Getting better] • Functional limitations/lifestyle/quality of life changes: [] • Patient rates the severity of this problem on a subjective scale from 0-10: [] • General Health: [Excellent][Good][Average][Fair][Poor] • Mental Health: [Excellent][Good][Average][Fair][Poor] • Current Stress Level: [High][Medium][Low] • Previous treatments/current exercise habits: [] • Occupation: [] • Marital Status: [] Medical History Past Medical History: [Cancer, ][Stroke, ][Emphysema, ][Heart Problems, ][Epilepsy/Seizures, ][Asthma, ][High Blood Pressure, ][Multiple Sclerosis, ][Head Injury, ][Osteoporosis, ][Low Back/Sacral Pain, ][Depression, ][Chronic Fatigue, ][Headaches, ][Diabetes, ][Arthritic Conditions, ][Smoking History, ][Fibromyalgia, ][Irritable Bowel Syndrome, ][Kidney Disease, ][Hepatitis, ][Sexually Transmitted Infection, ][Hypothyroidism, ][Rheumatoid Arthritis, ][Bone Fracture, ][Hearing Loss, ][Vision Loss, ][Anemia, ][Latex Sensitivity, ][Allergies, ] History of abdominal surgery: [Hernia][Gallbladder][Appendix][Other] Current Medications: [] Hormones/Contraception: [Birth control pills][IUD][HRT/MRT][Vaginal estrogen][None] Date of last medical exam: []; It [did][did not] internal [vaginal][rectal] pelvic exam"},
+            {phrase: ".pelvicsexual", brief: "Pelvic sexual assessment", category: "Pelvic", soap: "S", full: "• Sexual Activity: [Currently sexually active][Not sexually active] • Sexual Dysfunction: [Dyspareunia][Vaginismus][Decreased lubrication][Decreased sensation][Penetration difficulty][Orgasmic dysfunction] • Pain Location: [Superficial (introitus)][Deep][With penetration]"},
+            {phrase: ".pelvicskin", brief: "Pelvic skin assessment", category: "Pelvic", soap: "O", full: "• [No scar tissue restrictions][Patient has scar tissue restriction]: [mild][moderate][severe] • Scar location/description: [] • Incision orientation: [Horizontal][Vertical][Oblique] • Pain with scar palpation: []/10 • Scar restrictions: [Superior,][Inferior,][Lateral,][Medial,][Oblique]"},
+            {phrase: ".pelvicstrength", brief: "Pelvic strength assessment", category: "Pelvic", soap: "O", full: "• Resting tone: [Normal][Hypertonic][Hypotonic] • Layer 1: Grade: []/5; [Absent][Weak][Normal][Strong] • Layer 2: Grade: []/5; [Absent][Weak][Normal][Strong] • Layer 3: - Power (Oxford Scale 0-5): Grade: []/5; [Absent][Weak][Normal][Strong] - Endurance: [] seconds - Repetitions of 10 sec holds: [] seconds - Fast Contractions: [] reps - Muscle Elevation: [Present][Absent] - Co-contraction of abdominals: [Appropriate][Excessive][Inadequate] - Timing of Contraction: [Coordinated][Delayed][With help from other muscles] - Relaxation: [Coordinated][Delayed][With help from other muscles]"},
+            {phrase: ".per", brief: "perineum", category: "Anatomy", soap: "General", full: "perineum"},
+            {phrase: ".pf", brief: "pelvic floor", category: "Anatomy", soap: "General", full: "pelvic floor"},
+            {phrase: ".pfc", brief: "pelvic floor contraction", category: "Exercise", soap: "General", full: "pelvic floor contraction"},
+            {phrase: ".pfdi", brief: "Pelvic Floor Disability Index", category: "Outcome", soap: "O", full: "Pelvic Floor Disability Index (PFDI-20)"},
+            {phrase: ".pfj", brief: "patellofemoral", category: "Anatomy", soap: "General", full: "patellafemoral"},
+            {phrase: ".pfm", brief: "pelvic floor muscles", category: "Anatomy", soap: "General", full: "pelvic floor muscles"},
+            {phrase: ".pgq", brief: "Pelvic Girdle Questionnaire", category: "Outcome", soap: "O", full: "Pelvic Girdle Questionnaire"},
+            {phrase: ".pi", brief: "Patient Instructions", category: "Documentation", soap: "General", full: "Patient Instructions:"},
+            {phrase: ".pl", brief: "plantarflexion", category: "Anatomy", soap: "General", full: "plantarflexion"},
+            {phrase: ".poc", brief: "Plan of care continuation", category: "Documentation", soap: "P", full: "Patient is progressing as initially anticipated without need for modification to the plan. Continue physical therapy per frequency in the plan of care to continue to progress towards established goals. Progress as tolerated."},
+            {phrase: ".pos", brief: "Positive", category: "Assessment", soap: "General", full: "Positive"},
+            {phrase: ".post", brief: "posterior", category: "Anatomy", soap: "General", full: "posterior"},
+            {phrase: ".posture", brief: "Posture assessment", category: "Assessment", soap: "O", full: "Posture Standing posture appears [normal][forward head/rounded shoulders, ][increased thoracic kyphosis, ][increased lumbar lordosis, ][decreased lumbar lordosis, ][lateral deviation]. [No apparent postural abnormalities noted][These postural deviations may contribute to musculoskeletal complaints]"},
+            {phrase: ".pr", brief: "prone", category: "Treatment", soap: "General", full: "prone"},
+            {phrase: ".ps", brief: "pubic symphysis", category: "Anatomy", soap: "General", full: "pubic symphysis"},
+            {phrase: ".psfs", brief: "Patient Specific Functional Scale", category: "Outcome", soap: "O", full: "Patient Specific Functional Scale"},
+            {phrase: ".pt", brief: "physical therapy", category: "Documentation", soap: "General", full: "physical therapy"},
+            {phrase: ".pta", brief: "PTA treatment note", category: "Documentation", soap: "General", full: "Treatment provided by PTA has been observed and remains appropriate to POC. Samantha LeMay, PT, DPT"},
+            {phrase: ".pted", brief: "Patient Education", category: "Documentation", soap: "General", full: "Patient Education:"},
+            {phrase: ".pu", brief: "pubococcygeus", category: "Anatomy", soap: "General", full: "pubococcygeus"},
+            {phrase: ".pubo", brief: "puborectalis", category: "Anatomy", soap: "General", full: "puborectalis"},
+            {phrase: ".pulleys", brief: "Pulley exercises", category: "Exercise", soap: "O", full: "Pulleys facing [toward] [away from] the wall for a total of [] minutes in a shoulder scaption/flexion motion."},
+            {phrase: ".pvp", brief: "paravertebral point", category: "Treatment", soap: "General", full: "paravertebral point"},
+            {phrase: ".qc", brief: "quad cane", category: "Treatment", soap: "General", full: "quad cane"},
+            {phrase: ".ql", brief: "quadratus lumborum", category: "Anatomy", soap: "General", full: "quadratus lumborum"},
+            {phrase: ".r", brief: "right", category: "Anatomy", soap: "General", full: "right"},
+            {phrase: ".reps", brief: "repetitions", category: "Exercise", soap: "General", full: "repetitions"},
+            {phrase: ".rh", brief: "rhomboid", category: "Anatomy", soap: "General", full: "rhomboid"},
+            {phrase: ".rig", brief: "right", category: "Anatomy", soap: "General", full: "right"},
+            {phrase: ".romtx", brief: "Range of motion treatment", category: "Exercise", soap: "O", full: "[]ROM [] - [sets reps]; manual cues needed to []"},
+            {phrase: ".rtsa", brief: "Reverse Total Shoulder Arthroplasty", category: "Assessment", soap: "General", full: "Reverse Total Shoulder Arthroplasty"},
+            {phrase: ".ryan", brief: "Ryan Hursh, APRN, CNP", category: "Staff", soap: "General", full: "Ryan Hursh, APRN, CNP"},
+            {phrase: ".s", brief: "Subjective template", category: "Documentation", soap: "S", full: "Patient reports [improvement/no change/worsening]. [.pain].[Patient denies pain at rest or with activity today.] Compliance with HEP: [Good][Fair][Poor]"},
+            {phrase: ".sal", brief: "Samantha LeMay, PT, DPT", category: "Staff", soap: "General", full: "Samantha LeMay, PT, DPT"},
+            {phrase: ".sc", brief: "self-care management", category: "Treatment", soap: "General", full: "self-care management"},
+            {phrase: ".scap", brief: "scaption", category: "Exercise", soap: "General", full: "scaption"},
+            {phrase: ".scapex", brief: "Scapular exercises", category: "Exercise", soap: "O", full: "Dynamic scapular strengthening at the wall in 4 directions completed for[sets/reps] with [the R UE][the L UE][each UE seperately]"},
+            {phrase: ".scaprom", brief: "Scapular ROM", category: "Exercise", soap: "O", full: "Passive scapulothoracic mobility, all planes - [sets/reps]; educated patient about GH joint biomechanics"},
+            {phrase: ".scarmob", brief: "Scar mobilization", category: "Treatment", soap: "O", full: "Scar mobilization performed to [location] scar using techniques of tension loading, compression loading, rotation, bending and shearing to improve tissue pliability, decrease adhesions, and promote mobility of the surrounding soft tissues; Patient tolerated well with [no][minimal][moderate] discomfort"},
+            {phrase: ".scm", brief: "sternocleidomastoid", category: "Anatomy", soap: "General", full: "sternocleidomastoid"},
+            {phrase: ".seatedpfcex", brief: "Seated pelvic floor exercises", category: "Pelvic", soap: "O", full: "Seated pelvic floor contraction for [sets/reps] of quick contractions Seated pelvic florr contraction for [sets/reps] with [] second hold Seated pelvic floor contraction with hip adduction squeeze and incorporation of breath for [] Seated pelvic floor contraction with hip abduction against a blue TheraBand resistance for [] bilaterally Seated pelvic floor contraction with dumbbell unilateral military press for 2 sets of 10 repetitions with each upper extremity Seated pelvic floor elevators for [] with patient having a difficult time with []"},
+            {phrase: ".sec", brief: "single end cane", category: "Treatment", soap: "General", full: "single end cane"},
+            {phrase: ".sf", brief: "SF-36", category: "Outcome", soap: "General", full: "SF-36"},
+            {phrase: ".sh", brief: "shoulder", category: "Anatomy", soap: "General", full: "shoulder"},
+            {phrase: ".jointshldrmob", brief: "Shoulder joint mobilization", category: "Treatment", soap: "O", full: "Joint Mobilization • Joint mobilization to [glenohumeral][AC][SC] scapulothoracic joint • Grade: [] for [sets/reps][minutes] • Direction: [AP][PA][inferior][distraction] • Focus: improve [pain][joint mobility][segmental alignment][muscle relaxation] • Response: [improved motion][decreased pain][audible cavitation][soreness][no adverse response] • Tolerance: [Good, Fair, Poor] [with][without] [discomfort noted]"},
+            {phrase: ".spadi", brief: "Shoulder Pain and Disability Index", category: "Outcome", soap: "O", full: "Shoulder Pain and Disability Index"},
+            {phrase: ".outcomeshldrox", brief: "Oxford Shoulder Score", category: "Outcome", soap: "O", full: "Oxford Shoulder Score; patient received a score of []/48, impairment percentage of []%; scored with patient present; results reviewed"},
+            {phrase: ".rtsa", brief: "Reverse Total Shoulder Arthroplasty", category: "Assessment", soap: "General", full: "Reverse Total Shoulder Arthroplasty"},
+            {phrase: ".tsa", brief: "Total Shoulder Arthroplasty", category: "Assessment", soap: "General", full: "Total Shoulder Arthroplasty"},
+            {phrase: ".oxshldr", brief: "Oxford Shoulder Scale", category: "Outcome", soap: "General", full: "Oxford Shoulder Scale"},
+            {phrase: ".shannon", brief: "Shannon Pring, PTA", category: "Staff", soap: "General", full: "Shannon Pring, PTA"},
+            {phrase: ".si", brief: "stress incontinence", category: "Pelvic", soap: "General", full: "stress incontinence"},
+            {phrase: ".sl", brief: "side lying", category: "Treatment", soap: "General", full: "side lying"},
+            {phrase: ".slr", brief: "straight leg raise", category: "Exercise", soap: "General", full: "straight leg raise"},
+            {phrase: ".sls", brief: "single leg stance", category: "Exercise", soap: "General", full: "single leg stance"},
+            {phrase: ".slstx", brief: "Single leg stance training", category: "Exercise", soap: "O", full: "Single leg stance with [right][left] leg; Duration: [] sec; Trials: []; Assist: []; Surface: [firm][foam]; Deviations: [LOB][sway][step strategy][UE support][none noted]"},
+            {phrase: ".sp", brief: "symptomatic point", category: "Treatment", soap: "General", full: "symptomatic point"},
+            {phrase: ".spadi", brief: "Shoulder Pain and Disability Index", category: "Outcome", soap: "O", full: "Shoulder Pain and Disability Index"},
+            {phrase: ".squat", brief: "Can perform functional squat", category: "Assessment", soap: "O", full: "Patient can perform a functional squat without compensation"},
+            {phrase: ".squatcom", brief: "Squat with compensation", category: "Assessment", soap: "O", full: "Patient can do a functional squat but demonstrates compensations at []"},
+            {phrase: ".squatno", brief: "Cannot perform functional squat", category: "Assessment", soap: "O", full: "Patient cannot perform a functional squat"},
+            {phrase: ".st", brief: "Session time documentation", category: "Documentation", soap: "General", full: "Patient was seen in physical therapy from [] to [] for a total of [] minutes to include []"},
+            {phrase: ".standpfcex", brief: "Standing pelvic floor exercises", category: "Pelvic", soap: "O", full: "Standing pelvic floor contraction for [sets/reps] quick flicks, [sets/reps] with [] second holds Standing pelvic floor contraction with heel raises bilaterally for [] Standing pelvic floor contraction with hip abduction completed bilaterally for [] Standing pelvic floor contraction with squats for [] Standing pelvic floor contraction with lunge for [] completed bilaterally"},
+            {phrase: ".stepdown", brief: "Step-down exercises", category: "Exercise", soap: "O", full: "[direction] step-downs from a [] step, [sets/reps] with [the right leg][the left leg][each leg] with [no UE support][unilateral UE support][bilateral UE support]; Emphasis placed on [eccentric quadriceps control, ][maintaining neutral knee alignment, ][and controlled descent]; Patient required [cueing type] for [pacing] [and avoidance of compensatory trunk lean]"},
+            {phrase: ".stepup", brief: "Step-up exercises", category: "Exercise", soap: "O", full: "[direction] step-ups on a [] step, [sets/reps] with [the right leg][the left leg][each leg] with [no UE support][unilateral UE support][bilateral UE support]; Emphasis placed on [single-leg stability, ][upright posture, ][LE alignment, ][hip abductor activation]; Patient required verbal cueing for [pacing, ][maintaining neutral knee alignment, ][and balance strategies]"},
+            {phrase: ".stm", brief: "Soft tissue mobilization", category: "Treatment", soap: "O", full: "Soft tissue mobilization to [location] for [pain modulation, ][improving tissue extensibility, ][increasing circulation, ][edema management, ] Utilizing a [] technique Patient position: [supine][sitting][side lying] Response to treatment: []"},
+            {phrase: ".strengthle", brief: "Lower extremity strengthening", category: "Exercise", soap: "O", full: "[Joint] [motion] in [supine][sitting][standing][sidelying] with [wand][weight][cable][TheraBand] completed [bilaterally][each side][with right LE][with left LE] for [sets/reps]; Load: []"},
+            {phrase: ".stretch", brief: "Stretching exercises", category: "Exercise", soap: "O", full: "[location] stretch in [prone][sidelying][standing] for [reps/sets] for a [] sec hold; Type [static][passive][prolonged hold][contract-relax]"},
+            {phrase: ".sup", brief: "supine", category: "Treatment", soap: "General", full: "supine"},
+            {phrase: ".supinepfcex", brief: "Supine pelvic floor exercises", category: "Pelvic", soap: "O", full: "Supine pelvic floor contraction with [] second hold for []; verbal cueing [] Supine pelvic floor contraction with quick flicks for []; verbal cueing [] Supine hook lying hip adduction with pelvic floor contraction and isometric ball squeeze for 5 second hold for []; verbal cueing [] Supine hook lying hip abduction with pelvic floor contraction with [] TheraBand resistance at the distal thighs for []; verbal cueing [] Supine bridging for []; verbal cueing []"},
+            {phrase: ".ta", brief: "therapeutic activity", category: "Treatment", soap: "General", full: "therapeutic activity"},
+            {phrase: ".tandem", brief: "Tandem balance", category: "Exercise", soap: "O", full: "Tandem [stance][walking] balance activity [with] [side] [foot leading]; [Duration][Lengths of the foam beam]: [sec or # of lengths]; Trials: []; Assist: []; Surface: [firm][foam]; Deviations: [LOB][sway][step strategy][UE support][none noted]"},
+            {phrase: ".tb", brief: "TheraBand", category: "Treatment", soap: "General", full: "TheraBand"},
+            {phrase: ".te", brief: "therapeutic exercise", category: "Treatment", soap: "General", full: "therapeutic exercise"},
+            {phrase: ".tka", brief: "Total Knee Arthroplasty", category: "Assessment", soap: "General", full: "Total Knee Arthroplasty"},
+            {phrase: ".tread", brief: "Treadmill training", category: "Exercise", soap: "O", full: "Treadmill gait training - Time: [] minutes; Speed: [] mph; Incline: []%; UE Support Frequency: [constant][occasional][frequent]; Gait pattern observed: [reciprocal][antalgic][step-to][deviations]; Observed: [decreased endurance][rest break][SOB][good tolerance]"},
+            {phrase: ".tug", brief: "Timed Up and Go", category: "Assessment", soap: "O", full: "Timed Up and Go"},
+            {phrase: ".txdx", brief: "Treatment diagnosis list", category: "Documentation", soap: "A", full: "[decreased strength, , ][decreased ROM/flexibility, , ][impaired posture, ][gait dysfunction, ][balance deficit, ][core weakness, ][pain limiting function, ][impaired joint mobility, ][decreased endurance/activity tolerance, ][decreased coordination/motor control, ][soft tissue restrictions, ][difficulty with transfers, ][impaired functional mobility, ][decreased independence with ADLs/IADLs]"},
+            {phrase: ".ube", brief: "Upper body ergometer", category: "Exercise", soap: "O", full: "UBE at a workload of [] for [] minutes; Direction: [forward][backward][both]; Intensity: [self-selected][moderate][vigorous]; Observed: [steady cadence][decreased endurance][rest break][SOB][UE fatigue][good tolerance]"},
+            {phrase: ".ue", brief: "upper extremity", category: "Anatomy", soap: "General", full: "upper extremity"},
+            {phrase: ".uefi", brief: "Upper Extremity Functional Index", category: "Outcome", soap: "O", full: "Upper Extremity Functional Index"},
+            {phrase: ".upoca", brief: "Updated plan of care assessment", category: "Documentation", soap: "A", full: "The patient achieved measurable progress during this treatment period as documented above. Ongoing [significant/moderate/mild] functional deficits remain in [strength, ][range of motion, ][mobility, ]and [pain management] that prevent independent performance of essential daily activities. Skilled physical therapy services continue to be medically necessary to address these impairments and restore functional independence. Rehab Potential: [] Rehab Motivation: []"},
+            {phrase: ".us", brief: "ultrasound", category: "Modality", soap: "General", full: "ultrasound"},
+            {phrase: ".uspara", brief: "Therapeutic ultrasound", category: "Modality", soap: "O", full: "Therapeutic ultrasound to [location] for [minutes] minutes at [MHz] MHz, [W/cm²] W/cm², [continuous][50% pulsed] duty cycle Medium: Gel Patient position: [seated][prone][side lying][supine] Purpose: [deep heating][improve tissue extensibility][tissue healing][pain modulation] Tolerance: [no adverse reaction][patient reported pain and US was discontinued]"},
+            {phrase: ".y", brief: "Yes", category: "Documentation", soap: "General", full: "Yes"}
+        ];
+        
+        let currentCategoryFilter = 'All';
+
+        function getCategoryClass(category) {
+            const categoryMap = {
+                'Assessment': 'cat-assessment',
+                'Exercise': 'cat-exercise', 
+                'Modality': 'cat-modality',
+                'Documentation': 'cat-documentation',
+                'Outcome': 'cat-outcome',
+                'Anatomy': 'cat-anatomy',
+                'Pelvic': 'cat-pelvic',
+                'Staff': 'cat-staff',
+                'Evaluation': 'cat-evaluation',
+                'Treatment': 'cat-treatment',
+                'Acute Care': 'cat-acute'
+            };
+            return categoryMap[category] || 'cat-treatment';
         }
 
-        // Export to CSV function
-        function exportToCSV(data, filename) {
+        function getSoapClass(soap) {
+            const soapMap = {
+                'S': 'soap-s',
+                'O': 'soap-o', 
+                'A': 'soap-a',
+                'P': 'soap-p',
+                'A/P': 'soap-a',
+                'General': 'soap-general'
+            };
+            return soapMap[soap] || 'soap-general';
+        }
+
+        function filterByCategory(category) {
+            currentCategoryFilter = category;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Apply filters
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase().trim();
+            
+            let filtered = dotPhrases;
+            
+            // Apply category filter
+            if (currentCategoryFilter !== 'All') {
+                filtered = filtered.filter(item => item.category === currentCategoryFilter);
+            }
+            
+            // Apply search filter - search all fields including full description
+            if (searchTerm) {
+                filtered = filtered.filter(item => 
+                    item.phrase.toLowerCase().includes(searchTerm) ||
+                    item.brief.toLowerCase().includes(searchTerm) ||
+                    item.category.toLowerCase().includes(searchTerm) ||
+                    item.soap.toLowerCase().includes(searchTerm) ||
+                    item.full.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderTable(filtered);
+        }
+
+        function renderTable(data = dotPhrases) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="dot-phrase">${item.phrase}</span></td>
+                    <td class="brief-desc">${item.brief}</td>
+                    <td><span class="category ${getCategoryClass(item.category)}">${item.category}</span></td>
+                    <td><span class="soap ${getSoapClass(item.soap)}">${item.soap}</span></td>
+                    <td class="description-cell">${item.full}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('filteredCount').textContent = data.length;
+        }
+
+        function exportToCSV() {
+            const headers = ['Dot Phrase', 'Brief Description', 'Category', 'SOAP Location', 'Full Description'];
             const csvContent = [
-                ['Dot Phrase', 'Description', 'Category', 'SOAP Location', 'Content', 'Is Custom', 'Usage Count', 'Is Favorite'].join(','),
-                ...data.map(item => [
-                    `"${item.dotPhrase || ''}"`,
-                    `"${item.description || ''}"`,
-                    `"${item.category || ''}"`,
-                    `"${item.soapLocation || ''}"`,
-                    `"${(item.content || '').replace(/"/g, '""')}"`,
-                    item.isCustom ? 'Yes' : 'No',
-                    usageStats[item.id] || 0,
-                    favorites.has(item.id) ? 'Yes' : 'No'
+                headers.join(','),
+                ...dotPhrases.map(item => [
+                    `"${item.phrase}"`,
+                    `"${item.brief.replace(/"/g, '""')}"`,
+                    `"${item.category}"`,
+                    `"${item.soap}"`,
+                    `"${item.full.replace(/"/g, '""')}"`
                 ].join(','))
             ].join('\n');
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pt_dotphrases.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize the table
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('totalCount').textContent = dotPhrases.length;
+            renderTable();
             
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', filename);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
-
-        // Application state
-        let dotPhrases = [
-            { id: 'sample1', dotPhrase: '.chest', description: 'Chest examination template', content: 'Chest: Clear to auscultation bilaterally. No wheezes, rales, or rhonchi.', category: 'Physical Exam', soapLocation: 'Objective', isCustom: false },
-            { id: 'sample2', dotPhrase: '.heart', description: 'Heart examination template', content: 'Heart: Regular rate and rhythm. No murmurs, gallops, or rubs.', category: 'Physical Exam', soapLocation: 'Objective', isCustom: false },
-            { id: 'sample3', dotPhrase: '.neuro', description: 'Neurological examination', content: 'Neurological: Alert and oriented x3. Cranial nerves II-XII intact.', category: 'Physical Exam', soapLocation: 'Objective', isCustom: false },
-            { id: 'sample4', dotPhrase: '.assess', description: 'Assessment and plan template', content: 'Assessment and Plan:\n1. \n2. \n3. ', category: 'Documentation', soapLocation: 'Assessment/Plan', isCustom: false }
-        ];
-        
-        let favorites = new Set();
-        let usageStats = {};
-        let searchQuery = '';
-        let categoryFilter = '';
-        let soapFilter = '';
-        let showFavoritesOnly = false;
-        let showUsageStats = false;
-        let showCreateForm = false;
-        let showBulkDelete = false;
-        let editingPhrase = null;
-        let selectedPhrase = null;
-        let selectedForDeletion = new Set();
-
-        // Load saved data
-        function loadData() {
-            const savedPhrases = localStorage.getItem('dotPhrases');
-            const savedFavorites = localStorage.getItem('favorites');
-            const savedUsageStats = localStorage.getItem('usageStats');
-
-            if (savedPhrases) {
-                dotPhrases = JSON.parse(savedPhrases);
-            }
-
-            if (savedFavorites) {
-                favorites = new Set(JSON.parse(savedFavorites));
-            }
-
-            if (savedUsageStats) {
-                usageStats = JSON.parse(savedUsageStats);
-            }
-        }
-
-        // Save data
-        function saveData() {
-            localStorage.setItem('dotPhrases', JSON.stringify(dotPhrases));
-            localStorage.setItem('favorites', JSON.stringify([...favorites]));
-            localStorage.setItem('usageStats', JSON.stringify(usageStats));
-        }
-
-        // Show status message
-        function showStatus(message, type = 'success') {
-            const statusDiv = document.getElementById('status-messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `status-message status-${type}`;
-            messageDiv.textContent = message;
-            statusDiv.appendChild(messageDiv);
-            
-            setTimeout(() => {
-                messageDiv.remove();
-            }, 5000);
-        }
-
-        // Show confirmation modal
-        function showModal(title, message, onConfirm) {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-message').textContent = message;
-            document.getElementById('modal-overlay').style.display = 'flex';
-
-            const handleConfirm = () => {
-                document.getElementById('modal-overlay').style.display = 'none';
-                document.getElementById('modal-confirm').removeEventListener('click', handleConfirm);
-                document.getElementById('modal-cancel').removeEventListener('click', handleCancel);
-                onConfirm();
-            };
-
-            const handleCancel = () => {
-                document.getElementById('modal-overlay').style.display = 'none';
-                document.getElementById('modal-confirm').removeEventListener('click', handleConfirm);
-                document.getElementById('modal-cancel').removeEventListener('click', handleCancel);
-            };
-
-            document.getElementById('modal-confirm').addEventListener('click', handleConfirm);
-            document.getElementById('modal-cancel').addEventListener('click', handleCancel);
-        }
-
-        // Highlight text
-        function highlightText(text, query) {
-            if (!query.trim()) return text;
-            
-            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-            return text.replace(regex, '<span class="highlight">$1</span>');
-        }
-
-        // Copy to clipboard
-        function copyToClipboard(text, phraseId) {
-            navigator.clipboard.writeText(text).then(() => {
-                // Update usage stats
-                usageStats[phraseId] = (usageStats[phraseId] || 0) + 1;
-                saveData();
-                renderResults();
-                showStatus('Copied to clipboard!');
-            }).catch(() => {
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                
-                usageStats[phraseId] = (usageStats[phraseId] || 0) + 1;
-                saveData();
-                renderResults();
-                showStatus('Copied to clipboard!');
-            });
-        }
-
-        // Toggle favorite
-        function toggleFavorite(phraseId) {
-            if (favorites.has(phraseId)) {
-                favorites.delete(phraseId);
-            } else {
-                favorites.add(phraseId);
-            }
-            saveData();
-            renderResults();
-        }
-
-        // Toggle selection for deletion
-        function toggleSelection(phraseId) {
-            if (selectedForDeletion.has(phraseId)) {
-                selectedForDeletion.delete(phraseId);
-            } else {
-                selectedForDeletion.add(phraseId);
-            }
-            updateSelectAllCheckbox();
-        }
-
-        // Update select all checkbox
-        function updateSelectAllCheckbox() {
-            const selectAllCheckbox = document.getElementById('select-all');
-            const filteredPhrases = getFilteredPhrases();
-            const allSelected = filteredPhrases.length > 0 && filteredPhrases.every(phrase => selectedForDeletion.has(phrase.id));
-            selectAllCheckbox.checked = allSelected;
-        }
-
-        // Update dropdown options based on imported data
-        function updateFilterDropdowns() {
-            const categories = [...new Set(dotPhrases.map(p => p.category).filter(c => c))].sort();
-            const soapLocations = [...new Set(dotPhrases.map(p => p.soapLocation).filter(s => s))].sort();
-            
-            // Update category dropdown
-            const categoryFilter = document.getElementById('category-filter');
-            const currentCategoryValue = categoryFilter.value;
-            categoryFilter.innerHTML = '<option value="">All Categories</option>' + 
-                categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-            categoryFilter.value = currentCategoryValue;
-            
-            // Update SOAP dropdown
-            const soapFilter = document.getElementById('soap-filter');
-            const currentSoapValue = soapFilter.value;
-            soapFilter.innerHTML = '<option value="">All SOAP Sections</option>' + 
-                soapLocations.map(soap => `<option value="${soap}">${soap}</option>`).join('');
-            soapFilter.value = currentSoapValue;
-            
-            // Update form dropdowns too
-            const formCategorySelect = document.getElementById('form-category');
-            const currentFormCategoryValue = formCategorySelect.value;
-            formCategorySelect.innerHTML = '<option value="">Select Category</option>' + 
-                categories.map(cat => `<option value="${cat}">${cat}</option>`).join('') +
-                '<option value="Physical Exam">Physical Exam</option>' +
-                '<option value="History">History</option>' +
-                '<option value="Assessment">Assessment</option>' +
-                '<option value="Plan">Plan</option>' +
-                '<option value="Documentation">Documentation</option>' +
-                '<option value="Vital Signs">Vital Signs</option>' +
-                '<option value="Procedures">Procedures</option>' +
-                '<option value="Social">Social</option>' +
-                '<option value="Other">Other</option>';
-            formCategorySelect.value = currentFormCategoryValue;
-            
-            const formSoapSelect = document.getElementById('form-soap');
-            const currentFormSoapValue = formSoapSelect.value;
-            formSoapSelect.innerHTML = '<option value="">Select SOAP Section</option>' + 
-                soapLocations.map(soap => `<option value="${soap}">${soap}</option>`).join('') +
-                '<option value="Subjective">Subjective</option>' +
-                '<option value="Objective">Objective</option>' +
-                '<option value="Assessment">Assessment</option>' +
-                '<option value="Plan">Plan</option>' +
-                '<option value="Assessment/Plan">Assessment/Plan</option>' +
-                '<option value="Other">Other</option>';
-            formSoapSelect.value = currentFormSoapValue;
-        }
-
-        // Filter phrases
-        function getFilteredPhrases() {
-            let filtered = dotPhrases;
-
-            if (showFavoritesOnly) {
-                filtered = filtered.filter(phrase => favorites.has(phrase.id));
-            }
-
-            if (categoryFilter) {
-                filtered = filtered.filter(phrase => phrase.category === categoryFilter);
-            }
-
-            if (soapFilter) {
-                filtered = filtered.filter(phrase => phrase.soapLocation === soapFilter);
-            }
-
-            if (searchQuery.trim()) {
-                const query = searchQuery.toLowerCase();
-                filtered = filtered.filter(phrase => {
-                    const dotPhrase = (phrase.dotPhrase || '').toString().toLowerCase();
-                    const description = (phrase.description || '').toString().toLowerCase();
-                    const content = (phrase.content || '').toString().toLowerCase();
-                    const category = (phrase.category || '').toString().toLowerCase();
-                    const soapLocation = (phrase.soapLocation || '').toString().toLowerCase();
-                    
-                    return dotPhrase.includes(query) ||
-                           description.includes(query) ||
-                           content.includes(query) ||
-                           category.includes(query) ||
-                           soapLocation.includes(query);
-                });
-            }
-
-            // Sort by usage, then alphabetically
-            return filtered.sort((a, b) => {
-                const usageA = usageStats[a.id] || 0;
-                const usageB = usageStats[b.id] || 0;
-                if (usageA !== usageB) return usageB - usageA;
-                return (a.dotPhrase || '').localeCompare(b.dotPhrase || '');
-            });
-        }
-
-        // Render results
-        function renderResults() {
-            const filteredPhrases = getFilteredPhrases();
-            const resultsGrid = document.getElementById('results-grid');
-            const noResults = document.getElementById('no-results');
-            const resultsCount = document.getElementById('results-count');
-            const resultsStats = document.getElementById('results-stats');
-
-            // Update counters
-            let filterText = '';
-            if (searchQuery) filterText += ` for "${searchQuery}"`;
-            if (showFavoritesOnly) filterText += ' (favorites only)';
-            if (categoryFilter) filterText += ` (${categoryFilter})`;
-            if (soapFilter) filterText += ` (${soapFilter})`;
-            
-            resultsCount.textContent = `Showing ${filteredPhrases.length} of ${dotPhrases.length} dot phrases${filterText}`;
-            resultsStats.textContent = `${favorites.size} favorites • ${Object.keys(usageStats).length} phrases used`;
-
-            // Clear results
-            resultsGrid.innerHTML = '';
-
-            if (filteredPhrases.length === 0) {
-                noResults.style.display = 'block';
-                return;
-            }
-
-            noResults.style.display = 'none';
-
-            // Render phrases
-            filteredPhrases.forEach((phrase, index) => {
-                const phraseCard = document.createElement('div');
-                phraseCard.className = 'phrase-card';
-                phraseCard.onclick = () => {
-                    if (!showBulkDelete) {
-                        selectedPhrase = selectedPhrase === index ? null : index;
-                        renderResults();
-                    }
-                };
-
-                const isExpanded = selectedPhrase === index;
-                const isFavorited = favorites.has(phrase.id);
-                const usageCount = usageStats[phrase.id] || 0;
-                const isSelected = selectedForDeletion.has(phrase.id);
-
-                phraseCard.innerHTML = `
-                    <div class="phrase-header">
-                        ${showBulkDelete ? `
-                            <input 
-                                type="checkbox" 
-                                class="checkbox" 
-                                ${isSelected ? 'checked' : ''}
-                                onclick="event.stopPropagation(); toggleSelection('${phrase.id}')"
-                            >
-                        ` : ''}
-                        <div class="phrase-content">
-                            <div class="phrase-title-row">
-                                <h3 class="phrase-title">
-                                    ${highlightText(phrase.dotPhrase || '', searchQuery)}
-                                </h3>
-                                ${phrase.isCustom ? '<span class="badge badge-custom">Custom</span>' : ''}
-                                ${phrase.category ? `<span class="badge" style="background-color: #f3e8ff; color: #7c3aed;">${phrase.category}</span>` : ''}
-                                ${phrase.soapLocation ? `<span class="badge" style="background-color: #ecfdf5; color: #059669;">${phrase.soapLocation}</span>` : ''}
-                                ${usageCount > 0 ? `<span class="badge badge-usage">${usageCount} uses</span>` : ''}
-                            </div>
-                            <p class="phrase-description">
-                                ${highlightText(phrase.description || '', searchQuery)}
-                            </p>
-                            
-                            ${phrase.content ? `
-                                <div class="phrase-preview">
-                                    ${isExpanded ? `
-                                        <div class="expanded-content">
-                                            <div class="expanded-header">
-                                                <h4 class="expanded-title">Template Content:</h4>
-                                                <button
-                                                    onclick="event.stopPropagation(); copyToClipboard('${phrase.content.replace(/'/g, "\\'")}', '${phrase.id}')"
-                                                    class="action-btn"
-                                                    title="Copy template content"
-                                                >
-                                                    📋
-                                                </button>
-                                            </div>
-                                            <pre class="template-content">${highlightText(phrase.content, searchQuery)}</pre>
-                                        </div>
-                                    ` : `
-                                        <p>
-                                            ${highlightText(
-                                                phrase.content.length > 100 
-                                                    ? phrase.content.substring(0, 100) + '...' 
-                                                    : phrase.content,
-                                                searchQuery
-                                            )}
-                                        </p>
-                                    `}
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        ${!showBulkDelete ? `
-                            <div class="phrase-actions">
-                                <button
-                                    onclick="event.stopPropagation(); toggleFavorite('${phrase.id}')"
-                                    class="action-btn ${isFavorited ? 'favorite' : ''}"
-                                    title="${isFavorited ? 'Remove from favorites' : 'Add to favorites'}"
-                                >
-                                    ${isFavorited ? '⭐' : '☆'}
-                                </button>
-
-                                <button
-                                    onclick="event.stopPropagation(); startEditing('${phrase.id}')"
-                                    class="action-btn"
-                                    title="Edit phrase"
-                                >
-                                    ✏️
-                                </button>
-                                
-                                <button
-                                    onclick="event.stopPropagation(); deletePhrase('${phrase.id}')"
-                                    class="action-btn danger"
-                                    title="Delete phrase"
-                                >
-                                    🗑️
-                                </button>
-
-                                <button
-                                    onclick="event.stopPropagation(); copyToClipboard('${phrase.dotPhrase.replace(/'/g, "\\'")}', '${phrase.id}')"
-                                    class="action-btn"
-                                    title="Copy dot phrase"
-                                >
-                                    📋
-                                </button>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-
-                resultsGrid.appendChild(phraseCard);
-            });
-
-            if (showBulkDelete) {
-                updateSelectAllCheckbox();
-            }
-        }
-
-        // Start editing
-        function startEditing(phraseId) {
-            const phrase = dotPhrases.find(p => p.id === phraseId);
-            if (!phrase) return;
-
-            editingPhrase = phrase;
-            document.getElementById('form-title').textContent = 'Edit Dot Phrase';
-            document.getElementById('form-dotphrase').value = phrase.dotPhrase;
-            document.getElementById('form-description').value = phrase.description || '';
-            document.getElementById('form-category').value = phrase.category || '';
-            document.getElementById('form-soap').value = phrase.soapLocation || '';
-            document.getElementById('form-content').value = phrase.content || '';
-            
-            showCreateForm = true;
-            document.getElementById('form-panel').style.display = 'block';
-        }
-
-        // Delete phrase
-        function deletePhrase(phraseId) {
-            showModal(
-                'Delete Phrase',
-                'Are you sure you want to delete this phrase? This action cannot be undone.',
-                () => {
-                    dotPhrases = dotPhrases.filter(phrase => phrase.id !== phraseId);
-                    favorites.delete(phraseId);
-                    delete usageStats[phraseId];
-                    selectedForDeletion.delete(phraseId);
-                    saveData();
-                    renderResults();
-                    showStatus('Phrase deleted successfully');
-                }
-            );
-        }
-
-        // Delete selected phrases
-        function deleteSelectedPhrases() {
-            if (selectedForDeletion.size === 0) {
-                showStatus('No phrases selected for deletion', 'error');
-                return;
-            }
-
-            const count = selectedForDeletion.size;
-            showModal(
-                'Delete Selected Phrases',
-                `Are you sure you want to delete ${count} selected phrase${count > 1 ? 's' : ''}? This action cannot be undone.`,
-                () => {
-                    dotPhrases = dotPhrases.filter(phrase => !selectedForDeletion.has(phrase.id));
-                    selectedForDeletion.forEach(id => {
-                        favorites.delete(id);
-                        delete usageStats[id];
-                    });
-                    selectedForDeletion.clear();
-                    saveData();
-                    renderResults();
-                    showStatus(`${count} phrase${count > 1 ? 's' : ''} deleted successfully`);
-                }
-            );
-        }
-
-        // Export data
-        function exportData() {
-            const timestamp = new Date().toISOString().split('T')[0];
-            const filename = `dot-phrases-export-${timestamp}.csv`;
-            exportToCSV(dotPhrases, filename);
-            showStatus(`Data exported to ${filename}`);
-        }
-
-        // Render usage stats
-        function renderUsageStats() {
-            const statsContent = document.getElementById('stats-content');
-            const topUsedPhrases = Object.entries(usageStats)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 5)
-                .map(([id, count]) => {
-                    const phrase = dotPhrases.find(p => p.id === id);
-                    return phrase ? { ...phrase, usageCount: count } : null;
-                })
-                .filter(Boolean);
-
-            if (topUsedPhrases.length > 0) {
-                statsContent.innerHTML = `
-                    <p style="color: #1e40af; margin-bottom: 12px; font-size: 0.875rem;">Most frequently used dot phrases:</p>
-                    ${topUsedPhrases.map(phrase => `
-                        <div class="stats-item">
-                            <span class="stats-phrase">${phrase.dotPhrase}</span>
-                            <span class="stats-count">${phrase.usageCount} uses</span>
-                        </div>
-                    `).join('')}
-                `;
-            } else {
-                statsContent.innerHTML = '<p style="color: #1e40af;">No usage data yet. Start copying dot phrases to see statistics!</p>';
-            }
-        }
-
-        // File upload handler
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const loading = document.getElementById('loading');
-            loading.style.display = 'flex';
-
-            try {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        let data = [];
-                        
-                        if (file.name.toLowerCase().endsWith('.csv')) {
-                            // Handle CSV files
-                            data = parseCSV(e.target.result);
-                        } else {
-                            // For Excel files, show a message about CSV conversion
-                            loading.style.display = 'none';
-                            showStatus('Please save your Excel file as CSV format and try again. Excel files require additional libraries.', 'error');
-                            event.target.value = '';
-                            return;
-                        }
-
-                        if (data.length === 0) {
-                            throw new Error('No data found in the file');
-                        }
-
-                        // Map the data to our format
-                        const mappedData = data.map((row, index) => {
-                            const keys = Object.keys(row);
-                            
-                            const result = {
-                                id: `imported-${Date.now()}-${index}`,
-                                dotPhrase: String(row['Dot Phrase'] || row['dotPhrase'] || row['Phrase'] || row['DotPhrase'] || row['phrase'] || (keys[0] && row[keys[0]]) || '').trim(),
-                                description: String(row['Brief Description'] || row['Description'] || row['description'] || row['DESC'] || row['desc'] || (keys[1] && row[keys[1]]) || '').trim(),
-                                category: String(row['Category'] || row['category'] || row['CAT'] || row['cat'] || '').trim(),
-                                soapLocation: String(row['SOAP Location'] || row['soapLocation'] || row['SOAP'] || row['soap'] || row['Soap Location'] || '').trim(),
-                                content: String(row['Content'] || row['content'] || row['Text'] || row['Template'] || row['template'] || row['text'] || '').trim(),
-                                isCustom: false
-                            };
-                            
-                            // Log first few rows for debugging
-                            if (index < 3) {
-                                console.log(`Row ${index} actual data:`, {
-                                    dotPhrase: result.dotPhrase,
-                                    description: result.description,
-                                    category: result.category,
-                                    soapLocation: result.soapLocation,
-                                    content: result.content ? result.content.substring(0, 50) + '...' : 'No content'
-                                });
-                            }
-                            
-                            return result;
-                        }).filter(item => item.dotPhrase && item.dotPhrase !== 'undefined' && item.dotPhrase !== 'null');
-
-                        if (mappedData.length === 0) {
-                            throw new Error('No valid dot phrases found. Please check that your file has data in the expected format.');
-                        }
-
-                        dotPhrases = mappedData;
-                        saveData();
-                        
-                        // Small delay to ensure DOM is ready
-                        setTimeout(() => {
-                            updateFilterDropdowns();
-                            renderResults();
-                            renderUsageStats();
-                        }, 100);
-                        
-                        showStatus(`Successfully loaded ${mappedData.length} dot phrases!`);
-                        
-                    } catch (error) {
-                        showStatus(`Error reading file: ${error.message}`, 'error');
-                    } finally {
-                        loading.style.display = 'none';
-                        event.target.value = '';
-                    }
-                };
-
-                reader.readAsText(file);
-                
-            } catch (error) {
-                loading.style.display = 'none';
-                showStatus(`Error reading file: ${error.message}`, 'error');
-                event.target.value = '';
-            }
-        }
-
-        // Initialize the application
-        function init() {
-            loadData();
-            
-            // Reset filter dropdowns to ensure they start cleared
-            document.getElementById('category-filter').value = '';
-            document.getElementById('soap-filter').value = '';
-            categoryFilter = '';
-            soapFilter = '';
-            
-            updateFilterDropdowns(); // Populate dropdowns with actual data
-            renderResults();
-            renderUsageStats();
-
-            // Event listeners
-            document.getElementById('file-upload').addEventListener('change', handleFileUpload);
-
-            document.getElementById('create-btn').addEventListener('click', () => {
-                editingPhrase = null;
-                document.getElementById('form-title').textContent = 'Create New Dot Phrase';
-                document.getElementById('form-dotphrase').value = '';
-                document.getElementById('form-description').value = '';
-                document.getElementById('form-category').value = '';
-                document.getElementById('form-soap').value = '';
-                document.getElementById('form-content').value = '';
-                
-                showCreateForm = !showCreateForm;
-                document.getElementById('form-panel').style.display = showCreateForm ? 'block' : 'none';
-            });
-
-            document.getElementById('favorites-btn').addEventListener('click', () => {
-                showFavoritesOnly = !showFavoritesOnly;
-                const btn = document.getElementById('favorites-btn');
-                btn.className = `btn btn-secondary ${showFavoritesOnly ? 'active' : ''}`;
-                btn.innerHTML = `⭐ ${showFavoritesOnly ? 'Show All' : 'Favorites Only'}`;
-                renderResults();
-            });
-
-            document.getElementById('category-filter').addEventListener('change', (e) => {
-                categoryFilter = e.target.value;
-                renderResults();
-            });
-
-            document.getElementById('soap-filter').addEventListener('change', (e) => {
-                soapFilter = e.target.value;
-                renderResults();
-            });
-
-            document.getElementById('stats-btn').addEventListener('click', () => {
-                showUsageStats = !showUsageStats;
-                document.getElementById('stats-panel').style.display = showUsageStats ? 'block' : 'none';
-                if (showUsageStats) {
-                    renderUsageStats();
-                }
-            });
-
-            document.getElementById('export-btn').addEventListener('click', () => {
-                exportData();
-            });
-
-            document.getElementById('bulk-delete-btn').addEventListener('click', () => {
-                showBulkDelete = !showBulkDelete;
-                selectedForDeletion.clear();
-                document.getElementById('bulk-delete-panel').style.display = showBulkDelete ? 'block' : 'none';
-                const btn = document.getElementById('bulk-delete-btn');
-                btn.className = `btn ${showBulkDelete ? 'btn-secondary active' : 'btn-red'}`;
-                btn.innerHTML = showBulkDelete ? '❌ Cancel Bulk Delete' : '🗑️ Bulk Delete';
-                renderResults();
-            });
-
-            document.getElementById('cancel-bulk-btn').addEventListener('click', () => {
-                showBulkDelete = false;
-                selectedForDeletion.clear();
-                document.getElementById('bulk-delete-panel').style.display = 'none';
-                const btn = document.getElementById('bulk-delete-btn');
-                btn.className = 'btn btn-red';
-                btn.innerHTML = '🗑️ Bulk Delete';
-                renderResults();
-            });
-
-            document.getElementById('delete-selected-btn').addEventListener('click', () => {
-                deleteSelectedPhrases();
-            });
-
-            document.getElementById('select-all').addEventListener('change', (e) => {
-                const filteredPhrases = getFilteredPhrases();
-                if (e.target.checked) {
-                    filteredPhrases.forEach(phrase => selectedForDeletion.add(phrase.id));
-                } else {
-                    filteredPhrases.forEach(phrase => selectedForDeletion.delete(phrase.id));
-                }
-                renderResults();
-            });
-
-            document.getElementById('clear-filters-btn').addEventListener('click', () => {
-                // Clear all filters
-                searchQuery = '';
-                categoryFilter = '';
-                soapFilter = '';
-                showFavoritesOnly = false;
-                
-                // Reset UI elements
-                document.getElementById('search-input').value = '';
-                document.getElementById('clear-search').style.display = 'none';
-                document.getElementById('category-filter').value = '';
-                document.getElementById('soap-filter').value = '';
-                
-                const favBtn = document.getElementById('favorites-btn');
-                favBtn.className = 'btn btn-secondary';
-                favBtn.innerHTML = '⭐ Favorites Only';
-                
-                renderResults();
-                showStatus('All filters cleared');
-            });
-
-            document.getElementById('search-input').addEventListener('input', (e) => {
-                searchQuery = e.target.value;
-                const clearBtn = document.getElementById('clear-search');
-                clearBtn.style.display = searchQuery ? 'block' : 'none';
-                renderResults();
-            });
-
-            document.getElementById('clear-search').addEventListener('click', () => {
-                searchQuery = '';
-                document.getElementById('search-input').value = '';
-                document.getElementById('clear-search').style.display = 'none';
-                renderResults();
-            });
-
-            document.getElementById('cancel-btn').addEventListener('click', () => {
-                showCreateForm = false;
-                editingPhrase = null;
-                document.getElementById('form-panel').style.display = 'none';
-            });
-
-            document.getElementById('phrase-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const dotPhrase = document.getElementById('form-dotphrase').value.trim();
-                const description = document.getElementById('form-description').value.trim();
-                const category = document.getElementById('form-category').value.trim();
-                const soapLocation = document.getElementById('form-soap').value.trim();
-                const content = document.getElementById('form-content').value.trim();
-
-                if (!dotPhrase) {
-                    showStatus('Dot phrase is required', 'error');
-                    return;
-                }
-
-                if (editingPhrase) {
-                    // Update existing phrase
-                    const index = dotPhrases.findIndex(p => p.id === editingPhrase.id);
-                    if (index !== -1) {
-                        dotPhrases[index] = {
-                            ...dotPhrases[index],
-                            dotPhrase,
-                            description,
-                            category,
-                            soapLocation,
-                            content
-                        };
-                    }
-                    showStatus('Phrase updated successfully!');
-                } else {
-                    // Create new phrase
-                    const newPhrase = {
-                        id: `custom-${Date.now()}`,
-                        dotPhrase,
-                        description,
-                        category,
-                        soapLocation,
-                        content,
-                        isCustom: true
-                    };
-                    dotPhrases.push(newPhrase);
-                    showStatus('New phrase created successfully!');
-                }
-
-                saveData();
-                renderResults();
-                
-                // Reset form
-                showCreateForm = false;
-                editingPhrase = null;
-                document.getElementById('form-panel').style.display = 'none';
-                document.getElementById('phrase-form').reset();
-            });
-
-            // Close modal when clicking outside
-            document.getElementById('modal-overlay').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('modal-overlay')) {
-                    document.getElementById('modal-overlay').style.display = 'none';
-                }
-            });
-        }
-
-        // Start the application when page loads
-        document.addEventListener('DOMContentLoaded', init);
+            // Add search functionality
+            document.getElementById('searchBox').addEventListener('input', applyFilters);
+        });
     </script>
 </body>
 </html>
