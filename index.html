@@ -143,10 +143,51 @@
             border-color: #2c5aa0;
             background-color: #f8f9fa;
         }
-        .filter-btn.active {
-            background-color: #2c5aa0;
+        .editable {
+            cursor: pointer;
+            position: relative;
+        }
+        .editable:hover {
+            background-color: #f8f9fa;
+            outline: 1px dashed #007bff;
+        }
+        .editing {
+            background-color: #fff3cd;
+        }
+        .edit-input {
+            width: 100%;
+            border: 2px solid #007bff;
+            padding: 4px;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        .edit-textarea {
+            width: 100%;
+            min-height: 100px;
+            border: 2px solid #007bff;
+            padding: 4px;
+            font-family: inherit;
+            font-size: inherit;
+            resize: vertical;
+        }
+        .save-btn, .cancel-btn {
+            padding: 4px 8px;
+            margin: 2px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .save-btn {
+            background-color: #28a745;
             color: white;
-            border-color: #2c5aa0;
+        }
+        .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        .edit-controls {
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -160,6 +201,7 @@
         </div>
         
         <button class="export-btn" onclick="exportToCSV()">Export to CSV</button>
+        <button class="export-btn" onclick="addNewEntry()" style="background-color: #007bff;">Add New Entry</button>
         
         <input type="text" class="search-box" id="searchBox" placeholder="Search dot phrases, descriptions, categories, or any text content...">
         
@@ -187,6 +229,7 @@
                         <th>Category</th>
                         <th>SOAP Location</th>
                         <th>Full Description</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -559,18 +602,142 @@
             renderTable(filtered);
         }
 
+        function addNewEntry() {
+            const newEntry = {
+                phrase: '.new',
+                brief: 'New dot phrase',
+                category: 'Documentation',
+                soap: 'General',
+                full: 'Enter your template text here'
+            };
+            
+            dotPhrases.push(newEntry);
+            document.getElementById('totalCount').textContent = dotPhrases.length;
+            
+            // If currently filtering, apply the current filters to show the new entry if it matches
+            applyFilters();
+            
+            // Scroll to the new entry and highlight it
+            setTimeout(() => {
+                const rows = document.querySelectorAll('#tableBody tr');
+                const lastRow = rows[rows.length - 1];
+                if (lastRow) {
+                    lastRow.style.backgroundColor = '#d4edda';
+                    lastRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Auto-start editing the dot phrase
+                    const firstCell = lastRow.querySelector('td');
+                    if (firstCell) {
+                        makeEditable(firstCell, dotPhrases.length - 1, 'phrase');
+                    }
+                }
+            }, 100);
+        }
+
+        function deleteEntry(index) {
+            if (confirm('Are you sure you want to delete this dot phrase?')) {
+                dotPhrases.splice(index, 1);
+                document.getElementById('totalCount').textContent = dotPhrases.length;
+                applyFilters();
+            }
+        }
+
+        let editingCell = null;
+
+        function makeEditable(cell, rowIndex, field) {
+            if (editingCell) return; // Prevent multiple edits
+            
+            editingCell = cell;
+            const originalValue = dotPhrases[rowIndex][field];
+            cell.classList.add('editing');
+            
+            let input;
+            if (field === 'full') {
+                input = document.createElement('textarea');
+                input.className = 'edit-textarea';
+            } else {
+                input = document.createElement('input');
+                input.className = 'edit-input';
+                input.type = 'text';
+            }
+            
+            input.value = originalValue;
+            
+            const controls = document.createElement('div');
+            controls.className = 'edit-controls';
+            
+            const saveBtn = document.createElement('button');
+            saveBtn.textContent = 'Save';
+            saveBtn.className = 'save-btn';
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.className = 'cancel-btn';
+            
+            controls.appendChild(saveBtn);
+            controls.appendChild(cancelBtn);
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            cell.appendChild(controls);
+            
+            input.focus();
+            if (field !== 'full') {
+                input.select();
+            }
+            
+            saveBtn.onclick = () => {
+                dotPhrases[rowIndex][field] = input.value;
+                finishEditing(cell, rowIndex, field);
+            };
+            
+            cancelBtn.onclick = () => {
+                finishEditing(cell, rowIndex, field);
+            };
+            
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey && field !== 'full') {
+                    dotPhrases[rowIndex][field] = input.value;
+                    finishEditing(cell, rowIndex, field);
+                } else if (e.key === 'Escape') {
+                    finishEditing(cell, rowIndex, field);
+                }
+            };
+        }
+
+        function finishEditing(cell, rowIndex, field) {
+            cell.classList.remove('editing');
+            editingCell = null;
+            
+            // Re-render the cell with updated content
+            const item = dotPhrases[rowIndex];
+            if (field === 'phrase') {
+                cell.innerHTML = `<span class="dot-phrase">${item.phrase}</span>`;
+            } else if (field === 'brief') {
+                cell.innerHTML = item.brief;
+            } else if (field === 'category') {
+                cell.innerHTML = `<span class="category ${getCategoryClass(item.category)}">${item.category}</span>`;
+            } else if (field === 'soap') {
+                cell.innerHTML = `<span class="soap ${getSoapClass(item.soap)}">${item.soap}</span>`;
+            } else if (field === 'full') {
+                cell.innerHTML = item.full;
+            }
+        }
+
         function renderTable(data = dotPhrases) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             
-            data.forEach(item => {
+            data.forEach((item, index) => {
+                const originalIndex = dotPhrases.indexOf(item);
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><span class="dot-phrase">${item.phrase}</span></td>
-                    <td class="brief-desc">${item.brief}</td>
-                    <td><span class="category ${getCategoryClass(item.category)}">${item.category}</span></td>
-                    <td><span class="soap ${getSoapClass(item.soap)}">${item.soap}</span></td>
-                    <td class="description-cell">${item.full}</td>
+                    <td class="editable" onclick="makeEditable(this, ${originalIndex}, 'phrase')"><span class="dot-phrase">${item.phrase}</span></td>
+                    <td class="editable brief-desc" onclick="makeEditable(this, ${originalIndex}, 'brief')">${item.brief}</td>
+                    <td class="editable" onclick="makeEditable(this, ${originalIndex}, 'category')"><span class="category ${getCategoryClass(item.category)}">${item.category}</span></td>
+                    <td class="editable" onclick="makeEditable(this, ${originalIndex}, 'soap')"><span class="soap ${getSoapClass(item.soap)}">${item.soap}</span></td>
+                    <td class="editable description-cell" onclick="makeEditable(this, ${originalIndex}, 'full')">${item.full}</td>
+                    <td><button onclick="deleteEntry(${originalIndex})" class="cancel-btn" style="font-size: 12px;">Delete</button></td>
                 `;
                 tbody.appendChild(row);
             });
