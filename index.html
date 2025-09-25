@@ -424,6 +424,10 @@
             <button id="clear-filters-btn" class="btn btn-secondary">
                 Clear Filters
             </button>
+
+            <button id="export-btn" class="btn btn-primary">
+                📥 Export CSV
+            </button>
         </div>
 
         <div id="form-panel" class="form-panel" style="display: none;">
@@ -503,7 +507,7 @@
         </div>
 
         <div id="no-results" class="no-results" style="display: none;">
-            <p style="font-size: 3em;">📝</p>
+            <p style="font-size: 3em;">🔍</p>
             <p style="font-size: 1.125rem;">No dot phrases found</p>
             <p>Try uploading a CSV file or use different search terms</p>
         </div>
@@ -592,6 +596,54 @@
             return data;
         }
 
+        // Export data as CSV
+        function exportToCSV() {
+            if (dotPhrases.length === 0) {
+                showStatus('No data to export', 'error');
+                return;
+            }
+
+            // Create CSV header
+            const headers = ['Dot Phrase', 'Brief Description', 'Category', 'Content'];
+            
+            // Create CSV rows
+            const rows = dotPhrases.map(phrase => {
+                return [
+                    phrase.dotPhrase || '',
+                    phrase.description || '',
+                    phrase.category || '',
+                    phrase.content || ''
+                ].map(field => {
+                    // Escape quotes and wrap in quotes if contains comma, quote, or newline
+                    const escaped = field.replace(/"/g, '""');
+                    return (escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')) 
+                        ? `"${escaped}"` 
+                        : escaped;
+                });
+            });
+
+            // Combine header and rows
+            const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+
+            // Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `dot-phrases-${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showStatus(`Exported ${dotPhrases.length} dot phrases to CSV`);
+            } else {
+                showStatus('Export not supported in this browser', 'error');
+            }
+        }
+
         // Start editing
         function startEditing(phraseId) {
             const phrase = dotPhrases.find(p => p.id === phraseId);
@@ -618,6 +670,7 @@
                 showStatus('Phrase deleted successfully');
             }
         }
+        
         function copyToClipboard(text, phraseId) {
             navigator.clipboard.writeText(text).then(() => {
                 showStatus('Copied to clipboard!');
@@ -1015,6 +1068,9 @@
                 document.getElementById('form-panel').style.display = 'none';
                 document.getElementById('phrase-form').reset();
             });
+
+            // Export button
+            document.getElementById('export-btn').addEventListener('click', exportToCSV);
 
             // Favorites button
             document.getElementById('favorites-btn').addEventListener('click', () => {
