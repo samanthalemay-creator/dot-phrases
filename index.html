@@ -42,12 +42,6 @@
             border-radius: 8px;
         }
         
-        .upload-content {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
         .upload-label {
             cursor: pointer;
             color: #2563eb;
@@ -56,6 +50,7 @@
             border: 1px solid #2563eb;
             border-radius: 6px;
             background: white;
+            display: inline-block;
         }
         
         .upload-label:hover {
@@ -69,29 +64,13 @@
         .upload-description {
             font-size: 0.875rem;
             color: #6b7280;
-            margin-top: 4px;
+            margin-top: 8px;
         }
         
         .loading {
             margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display: none;
             color: #2563eb;
-        }
-        
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #e5e7eb;
-            border-top: 2px solid #2563eb;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
         
         .action-buttons {
@@ -102,16 +81,17 @@
         }
         
         .btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
             padding: 10px 16px;
             border-radius: 8px;
             border: none;
             cursor: pointer;
             font-weight: 500;
-            transition: background-color 0.2s;
             font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
         }
         
         .btn-primary {
@@ -158,6 +138,7 @@
             border-radius: 8px;
             font-size: 1.125rem;
             outline: none;
+            transition: border-color 0.2s;
         }
         
         .search-input:focus {
@@ -173,13 +154,64 @@
             color: #9ca3af;
         }
         
+        .filter-container {
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .filter-label {
+            font-weight: 500;
+            color: #374151;
+            margin-right: 8px;
+        }
+        
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            background: white;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+        
+        .filter-btn.active {
+            background-color: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+        
         .results-info {
             margin-bottom: 16px;
+            color: #6b7280;
+            font-size: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #6b7280;
-            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .sort-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .sort-select {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.875rem;
         }
         
         .results-grid {
@@ -197,24 +229,7 @@
         
         .phrase-card:hover {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-color: #d1d5db;
-        }
-        
-        .phrase-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        
-        .phrase-content {
-            flex: 1;
-        }
-        
-        .phrase-title-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
+            transform: translateY(-1px);
         }
         
         .phrase-title {
@@ -222,30 +237,35 @@
             font-size: 1.125rem;
             font-weight: 600;
             color: #2563eb;
+            margin-bottom: 8px;
         }
         
-        .badge {
+        .phrase-category {
+            display: inline-block;
+            background-color: #f3f4f6;
+            color: #6b7280;
             padding: 2px 8px;
+            border-radius: 12px;
             font-size: 0.75rem;
-            border-radius: 4px;
-            font-weight: 500;
+            margin-bottom: 8px;
         }
         
         .phrase-description {
             color: #374151;
             margin-bottom: 8px;
+            font-weight: 500;
         }
         
-        .phrase-preview {
+        .phrase-content {
             color: #6b7280;
             font-size: 0.875rem;
+            line-height: 1.5;
         }
         
         .phrase-actions {
+            margin-top: 12px;
             display: flex;
-            align-items: center;
             gap: 8px;
-            margin-left: 16px;
         }
         
         .action-btn {
@@ -260,37 +280,7 @@
         
         .action-btn:hover {
             background-color: #f3f4f6;
-            color: #6b7280;
-        }
-        
-        .action-btn.favorite {
-            color: #eab308;
-        }
-        
-        .expanded-content {
-            margin-top: 12px;
-            padding: 12px;
-            background-color: #f9fafb;
-            border-radius: 6px;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .template-content {
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-            background-color: white;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #e5e7eb;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .highlight {
-            background-color: #fef3c7;
-            padding: 0 2px;
-            border-radius: 2px;
+            color: #374151;
         }
         
         .no-results {
@@ -304,6 +294,18 @@
             border-radius: 6px;
             margin-bottom: 16px;
             font-weight: 500;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .status-success {
@@ -317,167 +319,23 @@
             color: #991b1b;
             border: 1px solid #fca5a5;
         }
-
-        .form-panel {
-            margin-bottom: 24px;
-            padding: 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            background-color: #f9fafb;
+        
+        .clear-search {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
         }
         
-        .form-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
+        .clear-search:hover {
             color: #374151;
-            margin-bottom: 4px;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            outline: none;
-        }
-        
-        .form-input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .form-textarea {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            outline: none;
-            resize: vertical;
-            min-height: 120px;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #1f2937;
-        }
-
-        .modal-message {
-            color: #6b7280;
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        /* Bulk operations styles */
-        .bulk-actions {
-            display: none;
             background-color: #f3f4f6;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            border: 1px solid #d1d5db;
-        }
-
-        .bulk-actions.active {
-            display: block;
-        }
-
-        .bulk-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .bulk-title {
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .bulk-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .checkbox {
-            margin-right: 8px;
-            transform: scale(1.2);
-        }
-
-        .select-all-row {
-            background-color: #f9fafb;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .merge-options {
-            display: none;
-            background-color: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .merge-options.active {
-            display: block;
-        }
-
-        .merge-title {
-            font-weight: 600;
-            color: #0369a1;
-            margin-bottom: 12px;
         }
     </style>
 </head>
@@ -488,177 +346,28 @@
         <div id="status-messages"></div>
         
         <div class="upload-area">
-            <div class="upload-content">
-                <div>
-                    <label for="file-upload" class="upload-label">
-                        Upload CSV File
-                    </label>
-                    <input
-                        id="file-upload"
-                        type="file"
-                        accept=".csv"
-                        class="file-input"
-                    />
-                    <p class="upload-description">
-                        Upload your CSV file with dot phrases. Expected columns: Dot Phrase, Category, SOAP Location, Brief Description, Full Description
-                    </p>
-                </div>
-
-        <!-- Merge Options Panel -->
-        <div id="merge-options" class="merge-options">
-            <h3 class="merge-title">Import Options - Choose how to handle your data:</h3>
-            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-                <label style="display: flex; align-items: center; gap: 8px;">
-                    <input type="radio" name="merge-mode" value="replace" checked>
-                    <strong>Replace</strong> - Clear existing data and import new file
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px;">
-                    <input type="radio" name="merge-mode" value="merge">
-                    <strong>Merge</strong> - Add new phrases and update duplicates
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px;">
-                    <input type="radio" name="merge-mode" value="skip-duplicates">
-                    <strong>Skip Duplicates</strong> - Only add new phrases, ignore existing ones
-                </label>
-            </div>
-        </div>
-            </div>
-            <div id="loading" class="loading" style="display: none;">
-                <div class="spinner"></div>
-                <span>Processing file...</span>
-            </div>
+            <label for="file-upload" class="upload-label">
+                📁 Upload CSV File
+            </label>
+            <input
+                id="file-upload"
+                type="file"
+                accept=".csv"
+                class="file-input"
+            />
+            <p class="upload-description">
+                Upload your CSV file with dot phrases. Expected columns: Dot Phrase, Category, SOAP Location, Brief Description, Full Description
+            </p>
+            <div id="loading" class="loading">🔄 Processing file...</div>
         </div>
 
         <div class="action-buttons">
-            <button id="create-btn" class="btn btn-primary">
-                Create New
-            </button>
-            
-            <button id="favorites-btn" class="btn btn-secondary">
-                Favorites Only
-            </button>
-
-            <button id="pelvic-health-btn" class="btn btn-secondary">
-                Pelvic Health
-            </button>
-
-            <button id="acute-care-btn" class="btn btn-secondary">
-                Acute Care
-            </button>
-
-            <select id="soap-filter" class="btn btn-secondary" style="padding: 10px 16px; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer;">
-                <option value="">SOAP Filter</option>
-                <option value="Subjective">Subjective</option>
-                <option value="Objective">Objective</option>
-                <option value="Assessment">Assessment</option>
-                <option value="Plan">Plan</option>
-            </select>
-
-            <button id="clear-filters-btn" class="btn btn-secondary">
-                Clear Filters
-            </button>
-
-            <button id="export-btn" class="btn btn-primary">
-                Export CSV
-            </button>
-
-            <button id="bulk-select-btn" class="btn btn-secondary">
-                Bulk Select
-            </button>
-
-            <button id="delete-all-btn" class="btn btn-danger">
-                Delete All
-            </button>
-        </div>
-
-        <!-- Bulk Actions Panel -->
-        <div id="bulk-actions" class="bulk-actions">
-            <div class="bulk-header">
-                <div class="bulk-title">
-                    <span id="selected-count">0</span> phrases selected
-                </div>
-                <div class="bulk-controls">
-                    <button id="bulk-delete" class="btn btn-danger">Delete Selected</button>
-                    <button id="bulk-export" class="btn btn-primary">Export Selected</button>
-                    <button id="cancel-bulk" class="btn btn-secondary">Cancel</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Select All Row -->
-        <div id="select-all-row" class="select-all-row" style="display: none;">
-            <input type="checkbox" id="select-all" class="checkbox">
-            <label for="select-all" style="cursor: pointer;">Select All</label>
-            <span style="color: #6b7280; font-size: 0.875rem; margin-left: auto;">
-                Use checkboxes to select phrases for bulk operations
-            </span>
-        </div>
-
-        <div id="form-panel" class="form-panel" style="display: none;">
-            <h3 id="form-title" class="form-title">Create New Dot Phrase</h3>
-            <div id="phrase-form">
-                <div class="form-group">
-                    <label class="form-label">Dot Phrase *</label>
-                    <input
-                        type="text"
-                        id="form-dotphrase"
-                        placeholder=".example"
-                        class="form-input"
-                        required
-                    />
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Brief Description</label>
-                    <input
-                        type="text"
-                        id="form-description"
-                        placeholder="Brief description of the template"
-                        class="form-input"
-                    />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <select id="form-category" class="form-input">
-                        <option value="">Select Category</option>
-                        <option value="Physical Exam">Physical Exam</option>
-                        <option value="History">History</option>
-                        <option value="Pelvic Health">Pelvic Health</option>
-                        <option value="Acute Care">Acute Care</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">SOAP Location</label>
-                    <select id="form-soap-location" class="form-input">
-                        <option value="">Select SOAP Location</option>
-                        <option value="Subjective">Subjective</option>
-                        <option value="Objective">Objective</option>
-                        <option value="Assessment">Assessment</option>
-                        <option value="Plan">Plan</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Template Content</label>
-                    <textarea
-                        id="form-content"
-                        placeholder="Enter your template content here..."
-                        class="form-textarea"
-                    ></textarea>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" id="save-btn" class="btn btn-primary">
-                        Save
-                    </button>
-                    <button type="button" id="cancel-btn" class="btn btn-secondary">
-                        Cancel
-                    </button>
-                </div>
-            </div>
+            <button id="create-btn" class="btn btn-primary">➕ Create New</button>
+            <button id="favorites-btn" class="btn btn-secondary">⭐ Favorites Only</button>
+            <button id="export-btn" class="btn btn-primary">📥 Export CSV</button>
+            <button id="bulk-select-btn" class="btn btn-secondary">☑️ Bulk Select</button>
+            <button id="delete-all-btn" class="btn btn-danger">🗑️ Delete All</button>
+            <button id="clear-btn" class="btn btn-danger">Clear Filters</button>
         </div>
 
         <div class="search-container">
@@ -666,294 +375,152 @@
             <input
                 type="text"
                 id="search-input"
-                placeholder="Search dot phrases or descriptions..."
+                placeholder="Search dot phrases, descriptions, or content..."
                 class="search-input"
             />
+            <button id="clear-search" class="clear-search" style="display: none;">✕</button>
+        </div>
+        
+        <div class="filter-container">
+            <span class="filter-label">Category Filters:</span>
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="Pelvic Health">Pelvic Health</button>
+            <button class="filter-btn" data-category="Acute Care">Acute Care</button>
+            <div id="category-filters"></div>
+            
+            <span class="filter-label" style="margin-left: 24px;">SOAP Location:</span>
+            <select id="soap-filter" class="sort-select">
+                <option value="all">All SOAP</option>
+                <option value="Subjective">Subjective</option>
+                <option value="Objective">Objective</option>
+                <option value="Assessment">Assessment</option>
+                <option value="Plan">Plan</option>
+            </select>
+            
+            <button id="clear-filters-btn" class="btn btn-secondary" style="margin-left: 16px;">Clear Filters</button>
         </div>
 
         <div class="results-info">
             <p id="results-count">Showing 0 of 0 dot phrases</p>
-            <p id="results-stats">0 favorites</p>
+            <div class="sort-controls">
+                <label for="sort-select">Sort by:</label>
+                <select id="sort-select" class="sort-select">
+                    <option value="name">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="category">Category</option>
+                    <option value="recent">Recently Added</option>
+                </select>
+            </div>
         </div>
 
-        <div id="results-grid" class="results-grid">
-        </div>
+        <div id="results-grid" class="results-grid"></div>
 
         <div id="no-results" class="no-results" style="display: none;">
             <p style="font-size: 3em;">🔍</p>
             <p style="font-size: 1.125rem;">No dot phrases found</p>
             <p>Try uploading a CSV file or use different search terms</p>
         </div>
-
-        <div id="modal-overlay" class="modal-overlay" style="display: none;">
-            <div class="modal">
-                <h3 id="modal-title" class="modal-title">Confirm Action</h3>
-                <p id="modal-message" class="modal-message">Are you sure?</p>
-                <div class="modal-actions">
-                    <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
-                    <button id="modal-confirm" class="btn btn-danger">Confirm</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
         let dotPhrases = [];
-        let favorites = new Set();
         let searchQuery = '';
-        let categoryFilter = '';
+        let activeCategory = 'all';
+        let activeSoapFilter = 'all';
+        let sortBy = 'name';
         let showFavoritesOnly = false;
-        let selectedPhrase = null;
-        let showCreateForm = false;
-        let editingPhrase = null;
-        let bulkMode = false;
+        let bulkSelectMode = false;
         let selectedPhrases = new Set();
-        let importMode = 'replace'; // 'replace', 'merge', 'skip-duplicates'
 
-        function loadData() {
-            const savedPhrases = localStorage.getItem('dotPhrases');
-            const savedFavorites = localStorage.getItem('favorites');
-
-            if (savedPhrases) {
-                dotPhrases = JSON.parse(savedPhrases);
-            }
-
-            if (savedFavorites) {
-                favorites = new Set(JSON.parse(savedFavorites));
-            }
-        }
-
-        function saveData() {
-            localStorage.setItem('dotPhrases', JSON.stringify(dotPhrases));
-            localStorage.setItem('favorites', JSON.stringify([...favorites]));
-        }
-
-        function showStatus(message, type = 'success') {
+        function showStatus(message, type) {
             const statusDiv = document.getElementById('status-messages');
             const messageDiv = document.createElement('div');
-            messageDiv.className = `status-message status-${type}`;
+            messageDiv.className = 'status-message status-' + type;
             messageDiv.textContent = message;
             statusDiv.appendChild(messageDiv);
             
-            setTimeout(() => {
-                messageDiv.remove();
+            setTimeout(function() {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
             }, 5000);
         }
 
-        function showModal(title, message, onConfirm) {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-message').textContent = message;
-            document.getElementById('modal-overlay').style.display = 'flex';
-            
-            const confirmBtn = document.getElementById('modal-confirm');
-            const cancelBtn = document.getElementById('modal-cancel');
-            const overlay = document.getElementById('modal-overlay');
-            
-            const newConfirmBtn = confirmBtn.cloneNode(true);
-            const newCancelBtn = cancelBtn.cloneNode(true);
-            
-            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-            
-            newConfirmBtn.addEventListener('click', () => {
-                hideModal();
-                onConfirm();
-            });
-            
-            newCancelBtn.addEventListener('click', hideModal);
-            
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    hideModal();
-                }
-            });
-        }
-
-        function hideModal() {
-            document.getElementById('modal-overlay').style.display = 'none';
-        }
-
-        // Duplicate detection
-        function checkForDuplicates(newPhrase, existingPhrases = dotPhrases) {
-            const duplicates = existingPhrases.filter(existing => 
-                existing.dotPhrase.toLowerCase() === newPhrase.dotPhrase.toLowerCase()
-            );
-            return duplicates;
-        }
-
-        // Bulk operations functions
-        function toggleBulkMode() {
-            bulkMode = !bulkMode;
-            selectedPhrases.clear();
-            
-            const bulkBtn = document.getElementById('bulk-select-btn');
-            const bulkActions = document.getElementById('bulk-actions');
-            const selectAllRow = document.getElementById('select-all-row');
-            
-            if (bulkMode) {
-                bulkBtn.textContent = 'Exit Bulk';
-                bulkBtn.className = 'btn btn-secondary active';
-                bulkActions.classList.add('active');
-                selectAllRow.style.display = 'flex';
-            } else {
-                bulkBtn.textContent = 'Bulk Select';
-                bulkBtn.className = 'btn btn-secondary';
-                bulkActions.classList.remove('active');
-                selectAllRow.style.display = 'none';
-                document.getElementById('select-all').checked = false;
-            }
-            
-            updateSelectedCount();
-            renderResults();
-        }
-
-        function togglePhraseSelection(phraseId) {
-            if (selectedPhrases.has(phraseId)) {
-                selectedPhrases.delete(phraseId);
-            } else {
-                selectedPhrases.add(phraseId);
-            }
-            updateSelectedCount();
-            updateSelectAllCheckbox();
-        }
-
-        function selectAllPhrases() {
-            const filteredPhrases = getFilteredPhrases();
-            const selectAll = document.getElementById('select-all').checked;
-            
-            if (selectAll) {
-                filteredPhrases.forEach(phrase => selectedPhrases.add(phrase.id));
-            } else {
-                selectedPhrases.clear();
-            }
-            
-            updateSelectedCount();
-            renderResults();
-        }
-
-        function updateSelectedCount() {
-            document.getElementById('selected-count').textContent = selectedPhrases.size;
-        }
-
-        function updateSelectAllCheckbox() {
-            const filteredPhrases = getFilteredPhrases();
-            const selectAllCheckbox = document.getElementById('select-all');
-            
-            if (filteredPhrases.length === 0) {
-                selectAllCheckbox.indeterminate = false;
-                selectAllCheckbox.checked = false;
-            } else if (selectedPhrases.size === 0) {
-                selectAllCheckbox.indeterminate = false;
-                selectAllCheckbox.checked = false;
-            } else if (filteredPhrases.every(phrase => selectedPhrases.has(phrase.id))) {
-                selectAllCheckbox.indeterminate = false;
-                selectAllCheckbox.checked = true;
-            } else {
-                selectAllCheckbox.indeterminate = true;
-                selectAllCheckbox.checked = false;
-            }
-        }
-
-        function bulkDeleteSelected() {
-            if (selectedPhrases.size === 0) {
-                showStatus('No phrases selected for deletion', 'error');
-                return;
-            }
-
-            const count = selectedPhrases.size;
-            showModal(
-                'Delete Selected Phrases',
-                `Are you sure you want to delete ${count} selected phrases? This action cannot be undone.`,
-                () => {
-                    dotPhrases = dotPhrases.filter(phrase => !selectedPhrases.has(phrase.id));
-                    selectedPhrases.forEach(id => favorites.delete(id));
-                    selectedPhrases.clear();
-                    saveData();
-                    updateSelectedCount();
-                    renderResults();
-                    showStatus(`Deleted ${count} phrases successfully`);
-                }
-            );
-        }
-
-        function bulkExportSelected() {
-            if (selectedPhrases.size === 0) {
-                showStatus('No phrases selected for export', 'error');
-                return;
-            }
-
-            const selectedData = dotPhrases.filter(phrase => selectedPhrases.has(phrase.id));
-            const headers = ['Dot Phrase', 'Category', 'SOAP Location', 'Brief Description', 'Full Description'];
-            
-            const rows = selectedData.map(phrase => {
-                return [
-                    phrase.dotPhrase || '',
-                    phrase.originalCategory || '',
-                    phrase.soapLocation || phrase.category || '',
-                    phrase.description || '',
-                    phrase.content || ''
-                ].map(field => {
-                    const escaped = field.replace(/"/g, '""');
-                    return (escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')) 
-                        ? `"${escaped}"` 
-                        : escaped;
-                });
-            });
-
-            const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `selected-phrases-${new Date().toISOString().split('T')[0]}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                showStatus(`Exported ${selectedData.length} selected phrases`);
-            }
-        }
-
         function parseCSV(text) {
-            const lines = text.split('\n').filter(line => line.trim());
-            
+            const lines = text.split('\n');
             if (lines.length === 0) {
                 throw new Error('File appears to be empty');
             }
             
-            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const headers = parseCSVLine(lines[0]);
             const data = [];
+            let i = 1;
             
-            for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-                const row = {};
+            while (i < lines.length) {
+                if (!lines[i].trim()) {
+                    i++;
+                    continue;
+                }
                 
-                headers.forEach((header, index) => {
-                    row[header] = values[index] || '';
-                });
+                let csvLine = lines[i];
+                let rowData = parseCSVLine(csvLine);
                 
-                data.push(row);
+                while (rowData.length < headers.length && i + 1 < lines.length) {
+                    i++;
+                    csvLine += '\n' + lines[i];
+                    rowData = parseCSVLine(csvLine);
+                }
+                
+                if (rowData.length === headers.length) {
+                    const row = {};
+                    headers.forEach(function(header, index) {
+                        row[header] = rowData[index] || '';
+                    });
+                    data.push(row);
+                }
+                
+                i++;
             }
             
             return data;
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            let i = 0;
+            
+            while (i < line.length) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i += 2;
+                    } else {
+                        inQuotes = !inQuotes;
+                        i++;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                    i++;
+                } else {
+                    current += char;
+                    i++;
+                }
+            }
+            
+            result.push(current.trim());
+            return result;
         }
 
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Show merge options
-            document.getElementById('merge-options').classList.add('active');
-            
-            // Get selected import mode
-            const selectedMode = document.querySelector('input[name="merge-mode"]:checked').value;
-            importMode = selectedMode;
-
-            const loading = document.getElementById('loading');
-            loading.style.display = 'flex';
+            document.getElementById('loading').style.display = 'block';
 
             const reader = new FileReader();
             
@@ -962,153 +529,100 @@
                     const content = e.target.result;
                     const data = parseCSV(content);
                     
-                    if (data.length === 0) {
-                        throw new Error('No data rows found in CSV file');
-                    }
-
-                    const mappedData = data.map((row, index) => {
+                    const mappedData = data.map(function(row, index) {
                         const keys = Object.keys(row);
                         
-                        const getDotPhrase = () => {
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'dot phrase' || lowerKey === 'dotphrase') {
-                                    return row[key] || '';
-                                }
+                        let dotPhrase = '';
+                        let description = '';
+                        let content = '';
+                        let category = '';
+                        let soapLocation = '';
+                        
+                        for (let i = 0; i < keys.length; i++) {
+                            const key = keys[i];
+                            const lowerKey = key.toLowerCase().trim();
+                            
+                            if (lowerKey === 'dot phrase' || lowerKey === 'dotphrase') {
+                                dotPhrase = row[key] || '';
+                            } else if (lowerKey === 'brief description' || lowerKey === 'briefdescription') {
+                                description = row[key] || '';
+                            } else if (lowerKey === 'full description' || lowerKey === 'fulldescription') {
+                                content = row[key] || '';
+                            } else if (lowerKey === 'category') {
+                                category = row[key] || '';
+                            } else if (lowerKey === 'soap location' || lowerKey === 'soaplocation') {
+                                soapLocation = row[key] || '';
                             }
-                            return row[keys[0]] || '';
-                        };
-
-                        const getCategory = () => {
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'category') {
-                                    return row[key] || '';
-                                }
-                            }
-                            return '';
-                        };
-
-                        const getSoapLocation = () => {
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'soap location' || lowerKey === 'soaplocation') {
-                                    return row[key] || '';
-                                }
-                            }
-                            return '';
-                        };
-
-                        const getBriefDescription = () => {
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'brief description' || lowerKey === 'briefdescription') {
-                                    return row[key] || '';
-                                }
-                            }
-                            return '';
-                        };
-
-                        const getFullDescription = () => {
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'full description' || lowerKey === 'fulldescription') {
-                                    return row[key] || '';
-                                }
-                            }
-                            return '';
-                        };
-
-                        const primaryCategory = getSoapLocation() || getCategory();
+                        }
 
                         return {
-                            id: `import-${Date.now()}-${index}`,
-                            dotPhrase: getDotPhrase(),
-                            description: getBriefDescription(),
-                            content: getFullDescription(),
-                            category: primaryCategory,
-                            originalCategory: getCategory(),
-                            soapLocation: getSoapLocation()
+                            id: 'import-' + Date.now() + '-' + index,
+                            dotPhrase: dotPhrase,
+                            description: description,
+                            content: content,
+                            category: category,
+                            soapLocation: soapLocation,
+                            dateAdded: new Date(),
+                            isFavorite: false
                         };
-                    }).filter(item => item.dotPhrase && item.dotPhrase.trim());
+                    }).filter(function(item) {
+                        return item.dotPhrase && item.dotPhrase.trim();
+                    });
 
                     if (mappedData.length === 0) {
-                        throw new Error('No valid dot phrases found. Check your CSV format.');
+                        throw new Error('No valid dot phrases found');
                     }
 
-                    // Handle different import modes
-                    let duplicates = [];
-                    let skipped = 0;
-                    let merged = 0;
-                    let added = 0;
-
-                    if (importMode === 'replace') {
-                        dotPhrases = mappedData;
-                        favorites.clear(); // Clear favorites when replacing
-                        showStatus(`Successfully replaced with ${mappedData.length} dot phrases!`);
-                    } else if (importMode === 'merge') {
-                        // Check for duplicates and update existing phrases
-                        mappedData.forEach(newPhrase => {
-                            const existingDuplicates = checkForDuplicates(newPhrase);
-                            if (existingDuplicates.length > 0) {
-                                duplicates.push({
-                                    new: newPhrase,
-                                    existing: existingDuplicates[0]
-                                });
-                                // Update existing phrase
-                                const index = dotPhrases.findIndex(p => p.id === existingDuplicates[0].id);
-                                if (index !== -1) {
-                                    dotPhrases[index] = { 
-                                        ...dotPhrases[index], 
-                                        ...newPhrase, 
-                                        id: dotPhrases[index].id  // Keep original ID
-                                    };
-                                }
-                                merged++;
-                            } else {
-                                dotPhrases.push(newPhrase);
-                                added++;
-                            }
-                        });
-                        
-                        if (duplicates.length > 0) {
-                            showStatus(`Merged ${mappedData.length} phrases (${merged} duplicates updated, ${added} new phrases added)`);
-                        } else {
-                            showStatus(`Successfully added ${added} new dot phrases!`);
-                        }
-                    } else if (importMode === 'skip-duplicates') {
-                        mappedData.forEach(newPhrase => {
-                            const existingDuplicates = checkForDuplicates(newPhrase);
-                            if (existingDuplicates.length > 0) {
-                                skipped++;
-                            } else {
-                                dotPhrases.push(newPhrase);
-                                added++;
-                            }
-                        });
-                        showStatus(`Added ${added} new phrases (${skipped} duplicates skipped)`);
-                    }
-
+                    dotPhrases = mappedData;
+                    updateCategoryFilters();
                     renderResults();
+                    showStatus('Successfully loaded ' + mappedData.length + ' dot phrases!', 'success');
                     
                 } catch (error) {
-                    console.error('Parsing error:', error);
-                    showStatus(`Error: ${error.message}`, 'error');
+                    showStatus('Error: ' + error.message, 'error');
                 } finally {
-                    loading.style.display = 'none';
-                    document.getElementById('merge-options').classList.remove('active');
+                    document.getElementById('loading').style.display = 'none';
                     event.target.value = '';
                 }
             };
 
             reader.onerror = function() {
-                loading.style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
                 showStatus('Error reading file', 'error');
-                document.getElementById('merge-options').classList.remove('active');
-                event.target.value = '';
             };
 
             reader.readAsText(file);
+        }
+
+        function updateCategoryFilters() {
+            const categories = [...new Set(dotPhrases.map(p => p.category).filter(c => c))];
+            const filtersContainer = document.getElementById('category-filters');
+            
+            filtersContainer.innerHTML = '';
+            
+            categories.forEach(function(category) {
+                const button = document.createElement('button');
+                button.className = 'filter-btn';
+                button.textContent = category;
+                button.dataset.category = category;
+                button.addEventListener('click', function() {
+                    setActiveCategory(category);
+                });
+                filtersContainer.appendChild(button);
+            });
+        }
+
+        function setActiveCategory(category) {
+            activeCategory = category;
+            
+            document.querySelectorAll('.filter-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+                if (btn.dataset.category === category || (category === 'all' && btn.textContent === 'All')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            renderResults();
         }
 
         function exportToCSV() {
@@ -1118,23 +632,24 @@
             }
 
             const headers = ['Dot Phrase', 'Category', 'SOAP Location', 'Brief Description', 'Full Description'];
-            
-            const rows = dotPhrases.map(phrase => {
+            const rows = dotPhrases.map(function(phrase) {
                 return [
                     phrase.dotPhrase || '',
-                    phrase.originalCategory || '',
-                    phrase.soapLocation || phrase.category || '',
+                    phrase.category || '',
+                    phrase.soapLocation || '',
                     phrase.description || '',
                     phrase.content || ''
-                ].map(field => {
+                ].map(function(field) {
                     const escaped = field.replace(/"/g, '""');
                     return (escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')) 
-                        ? `"${escaped}"` 
+                        ? '"' + escaped + '"'
                         : escaped;
                 });
             });
 
-            const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+            const csvContent = [headers.join(',')].concat(rows.map(function(row) {
+                return row.join(',');
+            })).join('\n');
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
@@ -1142,125 +657,198 @@
             if (link.download !== undefined) {
                 const url = URL.createObjectURL(blob);
                 link.setAttribute('href', url);
-                link.setAttribute('download', `dot-phrases-${new Date().toISOString().split('T')[0]}.csv`);
+                link.setAttribute('download', 'dot-phrases-' + new Date().toISOString().split('T')[0] + '.csv');
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 
-                showStatus(`Exported ${dotPhrases.length} dot phrases to CSV`);
-            } else {
-                showStatus('Export not supported in this browser', 'error');
+                showStatus('Exported ' + dotPhrases.length + ' dot phrases', 'success');
             }
         }
 
-        function deleteAllPhrases() {
-            if (dotPhrases.length === 0) {
-                showStatus('No phrases to delete', 'error');
+        function clearAll() {
+            if (confirm('Are you sure you want to delete all dot phrases? This cannot be undone.')) {
+                dotPhrases = [];
+                activeCategory = 'all';
+                searchQuery = '';
+                showFavoritesOnly = false;
+                bulkSelectMode = false;
+                selectedPhrases.clear();
+                document.getElementById('search-input').value = '';
+                document.getElementById('clear-search').style.display = 'none';
+                updateCategoryFilters();
+                renderResults();
+                showStatus('All dot phrases deleted', 'success');
+            }
+        }
+
+        function clearFilters() {
+            activeCategory = 'all';
+            activeSoapFilter = 'all';
+            searchQuery = '';
+            showFavoritesOnly = false;
+            document.getElementById('search-input').value = '';
+            document.getElementById('clear-search').style.display = 'none';
+            document.getElementById('favorites-btn').classList.remove('active');
+            document.getElementById('soap-filter').value = 'all';
+            setActiveCategory('all');
+            showStatus('All filters cleared', 'success');
+        }
+
+        function toggleFavorites() {
+            showFavoritesOnly = !showFavoritesOnly;
+            const favBtn = document.getElementById('favorites-btn');
+            if (showFavoritesOnly) {
+                favBtn.classList.add('active');
+                favBtn.textContent = '⭐ Show All';
+            } else {
+                favBtn.classList.remove('active');
+                favBtn.textContent = '⭐ Favorites Only';
+            }
+            renderResults();
+        }
+
+        function toggleBulkSelect() {
+            bulkSelectMode = !bulkSelectMode;
+            selectedPhrases.clear();
+            const bulkBtn = document.getElementById('bulk-select-btn');
+            if (bulkSelectMode) {
+                bulkBtn.classList.add('active');
+                bulkBtn.textContent = '✕ Exit Bulk Select';
+            } else {
+                bulkBtn.classList.remove('active');
+                bulkBtn.textContent = '☑️ Bulk Select';
+            }
+            renderResults();
+        }
+
+        function toggleFavorite(phraseId) {
+            const phrase = dotPhrases.find(p => p.id === phraseId);
+            if (phrase) {
+                phrase.isFavorite = !phrase.isFavorite;
+                const action = phrase.isFavorite ? 'added to' : 'removed from';
+                showStatus(`Phrase ${action} favorites`, 'success');
+                renderResults();
+            }
+        }
+
+        function createNewPhrase() {
+            const dotPhrase = prompt('Enter dot phrase:');
+            if (!dotPhrase) return;
+            
+            const description = prompt('Enter brief description:');
+            const content = prompt('Enter full description/content:');
+            const category = prompt('Enter category (All, Pelvic Health, Acute Care):');
+            const soapLocation = prompt('Enter SOAP location (Subjective, Objective, Assessment, Plan):');
+            
+            const newPhrase = {
+                id: 'manual-' + Date.now(),
+                dotPhrase: dotPhrase,
+                description: description || '',
+                content: content || '',
+                category: category || '',
+                soapLocation: soapLocation || '',
+                dateAdded: new Date(),
+                isFavorite: false
+            };
+            
+            dotPhrases.unshift(newPhrase);
+            updateCategoryFilters();
+            renderResults();
+            showStatus('New phrase created successfully!', 'success');
+        }
+
+        function deleteSelectedPhrases() {
+            if (selectedPhrases.size === 0) {
+                showStatus('No phrases selected', 'error');
                 return;
             }
-
-            const count = dotPhrases.length;
             
-            showModal(
-                'Delete All Phrases',
-                `Are you sure you want to delete ALL ${count} dot phrases? This action cannot be undone and will clear your entire database.`,
-                () => {
-                    dotPhrases = [];
-                    favorites.clear();
-                    saveData();
-                    renderResults();
-                    showStatus(`Deleted all ${count} dot phrases successfully`);
-                }
-            );
+            if (confirm(`Delete ${selectedPhrases.size} selected phrases? This cannot be undone.`)) {
+                dotPhrases = dotPhrases.filter(p => !selectedPhrases.has(p.id));
+                selectedPhrases.clear();
+                updateCategoryFilters();
+                renderResults();
+                showStatus(`Deleted ${selectedPhrases.size} phrases`, 'success');
+            }
         }
 
-        function startEditing(phraseId) {
-            const phrase = dotPhrases.find(p => p.id === phraseId);
-            if (!phrase) return;
-
-            editingPhrase = phrase;
-            document.getElementById('form-title').textContent = 'Edit Dot Phrase';
-            document.getElementById('form-dotphrase').value = phrase.dotPhrase;
-            document.getElementById('form-description').value = phrase.description || '';
-            document.getElementById('form-category').value = phrase.originalCategory || '';
-            document.getElementById('form-soap-location').value = phrase.soapLocation || '';
-            document.getElementById('form-content').value = phrase.content || '';
-            
-            showCreateForm = true;
-            document.getElementById('form-panel').style.display = 'block';
-        }
-
-        function deletePhrase(phraseId) {
-            showModal(
-                'Delete Phrase',
-                'Are you sure you want to delete this phrase? This action cannot be undone.',
-                () => {
-                    dotPhrases = dotPhrases.filter(phrase => phrase.id !== phraseId);
-                    favorites.delete(phraseId);
-                    saveData();
-                    renderResults();
-                    showStatus('Phrase deleted successfully');
-                }
-            );
-        }
-        
-        function copyToClipboard(text, phraseId) {
-            navigator.clipboard.writeText(text).then(() => {
-                showStatus('Copied to clipboard!');
-            }).catch(() => {
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showStatus('Copied to clipboard!', 'success');
+                });
+            } else {
                 const textArea = document.createElement('textarea');
                 textArea.value = text;
                 document.body.appendChild(textArea);
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showStatus('Copied to clipboard!');
-            });
-        }
-
-        function toggleFavorite(phraseId) {
-            if (favorites.has(phraseId)) {
-                favorites.delete(phraseId);
-            } else {
-                favorites.add(phraseId);
+                showStatus('Copied to clipboard!', 'success');
             }
-            renderResults();
-        }
-
-        function highlightText(text, query) {
-            if (!query.trim()) return text;
-            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-            return text.replace(regex, '<span class="highlight">$1</span>');
         }
 
         function getFilteredPhrases() {
             let filtered = dotPhrases;
-
+            
+            // Filter by favorites
             if (showFavoritesOnly) {
-                filtered = filtered.filter(phrase => favorites.has(phrase.id));
+                filtered = filtered.filter(function(phrase) {
+                    return phrase.isFavorite;
+                });
             }
-
-            if (categoryFilter) {
-                filtered = filtered.filter(phrase => 
-                    phrase.category && phrase.category.toLowerCase().includes(categoryFilter.toLowerCase())
-                );
+            
+            // Filter by category
+            if (activeCategory !== 'all') {
+                filtered = filtered.filter(function(phrase) {
+                    return phrase.category === activeCategory;
+                });
             }
-
+            
+            // Filter by SOAP location
+            if (activeSoapFilter !== 'all') {
+                filtered = filtered.filter(function(phrase) {
+                    return phrase.soapLocation === activeSoapFilter;
+                });
+            }
+            
+            // Filter by search query
             if (searchQuery.trim()) {
                 const query = searchQuery.toLowerCase();
-                filtered = filtered.filter(phrase => {
-                    const dotPhrase = (phrase.dotPhrase || '').toString().toLowerCase();
-                    const description = (phrase.description || '').toString().toLowerCase();
-                    const content = (phrase.content || '').toString().toLowerCase();
+                filtered = filtered.filter(function(phrase) {
+                    const dotPhrase = (phrase.dotPhrase || '').toLowerCase();
+                    const description = (phrase.description || '').toLowerCase();
+                    const content = (phrase.content || '').toLowerCase();
+                    const category = (phrase.category || '').toLowerCase();
+                    const soapLocation = (phrase.soapLocation || '').toLowerCase();
                     
                     return dotPhrase.includes(query) ||
                            description.includes(query) ||
-                           content.includes(query);
+                           content.includes(query) ||
+                           category.includes(query) ||
+                           soapLocation.includes(query);
                 });
             }
-
-            return filtered.sort((a, b) => (a.dotPhrase || '').localeCompare(b.dotPhrase || ''));
+            
+            // Sort results
+            filtered.sort(function(a, b) {
+                switch (sortBy) {
+                    case 'name':
+                        return (a.dotPhrase || '').localeCompare(b.dotPhrase || '');
+                    case 'name-desc':
+                        return (b.dotPhrase || '').localeCompare(a.dotPhrase || '');
+                    case 'category':
+                        return (a.category || '').localeCompare(b.category || '');
+                    case 'recent':
+                        return new Date(b.dateAdded) - new Date(a.dateAdded);
+                    default:
+                        return 0;
+                }
+            });
+            
+            return filtered;
         }
 
         function renderResults() {
@@ -1268,20 +856,22 @@
             const resultsGrid = document.getElementById('results-grid');
             const noResults = document.getElementById('no-results');
             const resultsCount = document.getElementById('results-count');
-            const resultsStats = document.getElementById('results-stats');
 
             let filterText = '';
-            if (searchQuery) filterText += ` for "${searchQuery}"`;
-            if (showFavoritesOnly) filterText += ' (favorites only)';
-            if (categoryFilter) filterText += ` (${categoryFilter})`;
-            
-            resultsCount.textContent = `Showing ${filteredPhrases.length} of ${dotPhrases.length} dot phrases${filterText}`;
-            resultsStats.textContent = `${favorites.size} favorites`;
-
-            // Update select all checkbox if in bulk mode
-            if (bulkMode) {
-                updateSelectAllCheckbox();
+            if (searchQuery) {
+                filterText = ' matching "' + searchQuery + '"';
             }
+            if (activeCategory !== 'all') {
+                filterText += ' in category "' + activeCategory + '"';
+            }
+            if (activeSoapFilter !== 'all') {
+                filterText += ' in SOAP "' + activeSoapFilter + '"';
+            }
+            if (showFavoritesOnly) {
+                filterText += ' (favorites only)';
+            }
+            
+            resultsCount.textContent = 'Showing ' + filteredPhrases.length + ' of ' + dotPhrases.length + ' dot phrases' + filterText;
 
             resultsGrid.innerHTML = '';
 
@@ -1292,307 +882,157 @@
 
             noResults.style.display = 'none';
 
-            filteredPhrases.forEach((phrase, index) => {
+            filteredPhrases.forEach(function(phrase) {
                 const phraseCard = document.createElement('div');
                 phraseCard.className = 'phrase-card';
                 
-                // Only make cards clickable when not in bulk mode
-                if (!bulkMode) {
-                    phraseCard.onclick = () => {
-                        selectedPhrase = selectedPhrase === index ? null : index;
-                        renderResults();
-                    };
-                }
-
-                const isExpanded = selectedPhrase === index;
-                const isFavorited = favorites.has(phrase.id);
-
-                let cardHTML = '<div class="phrase-header">';
-                
-                // Add checkbox for bulk mode
-                if (bulkMode) {
-                    const isSelected = selectedPhrases.has(phrase.id);
-                    cardHTML += '<input type="checkbox" class="checkbox" ';
-                    cardHTML += isSelected ? 'checked ' : '';
-                    cardHTML += 'onchange="event.stopPropagation(); togglePhraseSelection(\'' + phrase.id + '\')">';
+                // Add bulk select checkbox if in bulk select mode
+                if (bulkSelectMode) {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.style.marginRight = '8px';
+                    checkbox.checked = selectedPhrases.has(phrase.id);
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            selectedPhrases.add(phrase.id);
+                        } else {
+                            selectedPhrases.delete(phrase.id);
+                        }
+                    });
+                    phraseCard.appendChild(checkbox);
                 }
                 
-                cardHTML += '<div class="phrase-content"' + (bulkMode ? ' style="margin-left: 8px;"' : '') + '>';
-                cardHTML += '<div class="phrase-title-row">';
-                cardHTML += '<h3 class="phrase-title">' + highlightText(phrase.dotPhrase || '', searchQuery) + '</h3>';
+                const title = document.createElement('div');
+                title.className = 'phrase-title';
+                title.textContent = phrase.dotPhrase || '';
+                phraseCard.appendChild(title);
                 
                 if (phrase.category) {
-                    cardHTML += '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed;">' + phrase.category + '</span>';
+                    const category = document.createElement('div');
+                    category.className = 'phrase-category';
+                    category.textContent = phrase.category;
+                    phraseCard.appendChild(category);
                 }
                 
-                cardHTML += '</div>';
-                cardHTML += '<p class="phrase-description">' + highlightText(phrase.description || '', searchQuery) + '</p>';
+                if (phrase.soapLocation) {
+                    const soap = document.createElement('div');
+                    soap.className = 'phrase-category';
+                    soap.style.backgroundColor = '#e0e7ff';
+                    soap.style.color = '#3730a3';
+                    soap.textContent = 'SOAP: ' + phrase.soapLocation;
+                    phraseCard.appendChild(soap);
+                }
+                
+                if (phrase.description) {
+                    const desc = document.createElement('div');
+                    desc.className = 'phrase-description';
+                    desc.textContent = phrase.description;
+                    phraseCard.appendChild(desc);
+                }
                 
                 if (phrase.content) {
-                    cardHTML += '<div class="phrase-preview">';
-                    if (isExpanded) {
-                        cardHTML += '<div class="expanded-content">';
-                        cardHTML += '<h4 style="font-weight: 600; margin-bottom: 8px;">Template Content:</h4>';
-                        cardHTML += '<pre class="template-content">' + highlightText(phrase.content, searchQuery) + '</pre>';
-                        cardHTML += '</div>';
-                    } else {
-                        const preview = phrase.content.length > 100 ? phrase.content.substring(0, 100) + '...' : phrase.content;
-                        cardHTML += '<p>' + highlightText(preview, searchQuery) + '</p>';
-                    }
-                    cardHTML += '</div>';
+                    const content = document.createElement('div');
+                    content.className = 'phrase-content';
+                    const preview = phrase.content.length > 200 ? phrase.content.substring(0, 200) + '...' : phrase.content;
+                    content.textContent = preview;
+                    phraseCard.appendChild(content);
                 }
                 
-                cardHTML += '</div>';
+                const actions = document.createElement('div');
+                actions.className = 'phrase-actions';
                 
-                // Only show action buttons when not in bulk mode
-                if (!bulkMode) {
-                    cardHTML += '<div class="phrase-actions">';
-                    
-                    const favoriteIcon = isFavorited ? '⭐' : '☆';
-                    const favoriteClass = isFavorited ? 'favorite' : '';
-                    const favoriteTitle = isFavorited ? 'Remove from favorites' : 'Add to favorites';
-                    cardHTML += '<button onclick="event.stopPropagation(); toggleFavorite(\'' + phrase.id + '\')" class="action-btn ' + favoriteClass + '" title="' + favoriteTitle + '">' + favoriteIcon + '</button>';
-                    
-                    cardHTML += '<button onclick="event.stopPropagation(); startEditing(\'' + phrase.id + '\')" class="action-btn" title="Edit phrase">✏️</button>';
-                    
-                    cardHTML += '<button onclick="event.stopPropagation(); deletePhrase(\'' + phrase.id + '\')" class="action-btn danger" title="Delete phrase">🗑️</button>';
-                    
-                    const textToCopy = phrase.content ? phrase.content.replace(/'/g, "\\'") : phrase.dotPhrase.replace(/'/g, "\\'");
-                    cardHTML += '<button onclick="event.stopPropagation(); copyToClipboard(\'' + textToCopy + '\', \'' + phrase.id + '\')" class="action-btn" title="Copy to clipboard">📋</button>';
-                    
-                    cardHTML += '</div>';
-                }
+                const favoriteBtn = document.createElement('button');
+                favoriteBtn.className = 'action-btn';
+                favoriteBtn.textContent = phrase.isFavorite ? '⭐' : '☆';
+                favoriteBtn.title = phrase.isFavorite ? 'Remove from favorites' : 'Add to favorites';
+                favoriteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleFavorite(phrase.id);
+                });
+                actions.appendChild(favoriteBtn);
                 
-                cardHTML += '</div>';
-
-                phraseCard.innerHTML = cardHTML;
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'action-btn';
+                copyBtn.textContent = '📋';
+                copyBtn.title = 'Copy content to clipboard';
+                copyBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    copyToClipboard(phrase.content || phrase.dotPhrase);
+                });
+                actions.appendChild(copyBtn);
+                
+                const copyDotBtn = document.createElement('button');
+                copyDotBtn.className = 'action-btn';
+                copyDotBtn.textContent = '📝';
+                copyDotBtn.title = 'Copy dot phrase to clipboard';
+                copyDotBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    copyToClipboard(phrase.dotPhrase);
+                });
+                actions.appendChild(copyDotBtn);
+                
+                phraseCard.appendChild(actions);
                 resultsGrid.appendChild(phraseCard);
             });
         }
 
         function init() {
-            loadData();
-            renderResults();
-
+            // File upload
             document.getElementById('file-upload').addEventListener('change', handleFileUpload);
-
-            document.getElementById('create-btn').addEventListener('click', () => {
-                editingPhrase = null;
-                document.getElementById('form-title').textContent = 'Create New Dot Phrase';
-                document.getElementById('form-dotphrase').value = '';
-                document.getElementById('form-description').value = '';
-                document.getElementById('form-category').value = '';
-                document.getElementById('form-soap-location').value = '';
-                document.getElementById('form-content').value = '';
-                
-                showCreateForm = !showCreateForm;
-                document.getElementById('form-panel').style.display = showCreateForm ? 'block' : 'none';
-            });
-
-            document.getElementById('cancel-btn').addEventListener('click', () => {
-                showCreateForm = false;
-                editingPhrase = null;
-                document.getElementById('form-panel').style.display = 'none';
-            });
-
-            document.getElementById('save-btn').addEventListener('click', () => {
-                console.log('Save button clicked');
-                
-                const dotPhrase = document.getElementById('form-dotphrase').value.trim();
-                const description = document.getElementById('form-description').value.trim();
-                const category = document.getElementById('form-category').value.trim();
-                const soapLocation = document.getElementById('form-soap-location').value.trim();
-                const content = document.getElementById('form-content').value.trim();
-
-                if (!dotPhrase) {
-                    showStatus('Dot phrase is required', 'error');
-                    return;
-                }
-
-                // Check for duplicates when creating new phrase
-                if (!editingPhrase) {
-                    const duplicates = checkForDuplicates({ dotPhrase });
-                    if (duplicates.length > 0) {
-                        showModal(
-                            'Duplicate Dot Phrase Detected',
-                            `A dot phrase "${dotPhrase}" already exists. Do you want to update the existing one instead?`,
-                            () => {
-                                // Update the existing phrase
-                                const existingPhrase = duplicates[0];
-                                const index = dotPhrases.findIndex(p => p.id === existingPhrase.id);
-                                if (index !== -1) {
-                                    dotPhrases[index] = {
-                                        ...dotPhrases[index],
-                                        dotPhrase,
-                                        description,
-                                        category: soapLocation || category,
-                                        originalCategory: category,
-                                        soapLocation: soapLocation,
-                                        content
-                                    };
-                                }
-                                saveData();
-                                renderResults();
-                                showCreateForm = false;
-                                editingPhrase = null;
-                                document.getElementById('form-panel').style.display = 'none';
-                                
-                                // Clear form fields
-                                document.getElementById('form-dotphrase').value = '';
-                                document.getElementById('form-description').value = '';
-                                document.getElementById('form-category').value = '';
-                                document.getElementById('form-soap-location').value = '';
-                                document.getElementById('form-content').value = '';
-                                
-                                showStatus('Existing phrase updated successfully!');
-                            }
-                        );
-                        return;
-                    }
-                }
-
-                if (editingPhrase) {
-                    const index = dotPhrases.findIndex(p => p.id === editingPhrase.id);
-                    if (index !== -1) {
-                        dotPhrases[index] = {
-                            ...dotPhrases[index],
-                            dotPhrase,
-                            description,
-                            category: soapLocation || category,
-                            originalCategory: category,
-                            soapLocation: soapLocation,
-                            content
-                        };
-                    }
-                    showStatus('Phrase updated successfully!');
-                } else {
-                    const newPhrase = {
-                        id: `custom-${Date.now()}`,
-                        dotPhrase,
-                        description,
-                        category: soapLocation || category,
-                        originalCategory: category,
-                        soapLocation: soapLocation,
-                        content
-                    };
-                    dotPhrases.push(newPhrase);
-                    showStatus('New phrase created successfully!');
-                }
-
-                saveData();
-                renderResults();
-                
-                showCreateForm = false;
-                editingPhrase = null;
-                document.getElementById('form-panel').style.display = 'none';
-                
-                // Clear form fields
-                document.getElementById('form-dotphrase').value = '';
-                document.getElementById('form-description').value = '';
-                document.getElementById('form-category').value = '';
-                document.getElementById('form-soap-location').value = '';
-                document.getElementById('form-content').value = '';
-            });
-
+            
+            // Action buttons
+            document.getElementById('create-btn').addEventListener('click', createNewPhrase);
+            document.getElementById('favorites-btn').addEventListener('click', toggleFavorites);
             document.getElementById('export-btn').addEventListener('click', exportToCSV);
-            document.getElementById('delete-all-btn').addEventListener('click', deleteAllPhrases);
-
-            // Bulk operations event handlers
-            document.getElementById('bulk-select-btn').addEventListener('click', toggleBulkMode);
-            document.getElementById('select-all').addEventListener('change', selectAllPhrases);
-            document.getElementById('bulk-delete').addEventListener('click', bulkDeleteSelected);
-            document.getElementById('bulk-export').addEventListener('click', bulkExportSelected);
-            document.getElementById('cancel-bulk').addEventListener('click', toggleBulkMode);
-
-            document.getElementById('favorites-btn').addEventListener('click', () => {
-                showFavoritesOnly = !showFavoritesOnly;
-                const btn = document.getElementById('favorites-btn');
-                btn.className = `btn btn-secondary ${showFavoritesOnly ? 'active' : ''}`;
-                btn.textContent = showFavoritesOnly ? 'Show All' : 'Favorites Only';
-                renderResults();
-            });
-
-            document.getElementById('pelvic-health-btn').addEventListener('click', () => {
-                const btn = document.getElementById('pelvic-health-btn');
-                const isActive = btn.className.includes('active');
-                
-                if (isActive) {
-                    categoryFilter = '';
-                    btn.className = 'btn btn-secondary';
+            document.getElementById('bulk-select-btn').addEventListener('click', toggleBulkSelect);
+            document.getElementById('delete-all-btn').addEventListener('click', function() {
+                if (bulkSelectMode && selectedPhrases.size > 0) {
+                    deleteSelectedPhrases();
                 } else {
-                    categoryFilter = 'Pelvic Health';
-                    btn.className = 'btn btn-secondary active';
-                    document.getElementById('acute-care-btn').className = 'btn btn-secondary';
-                    document.getElementById('soap-filter').value = '';
-                    document.getElementById('soap-filter').style.backgroundColor = '#e5e7eb';
-                    document.getElementById('soap-filter').style.color = '#374151';
+                    clearAll();
                 }
-                
-                renderResults();
             });
-
-            document.getElementById('acute-care-btn').addEventListener('click', () => {
-                const btn = document.getElementById('acute-care-btn');
-                const isActive = btn.className.includes('active');
-                
-                if (isActive) {
-                    categoryFilter = '';
-                    btn.className = 'btn btn-secondary';
-                } else {
-                    categoryFilter = 'Acute Care';
-                    btn.className = 'btn btn-secondary active';
-                    document.getElementById('pelvic-health-btn').className = 'btn btn-secondary';
-                    document.getElementById('soap-filter').value = '';
-                    document.getElementById('soap-filter').style.backgroundColor = '#e5e7eb';
-                    document.getElementById('soap-filter').style.color = '#374151';
-                }
-                
-                renderResults();
-            });
-
-            document.getElementById('soap-filter').addEventListener('change', (e) => {
-                const dropdown = document.getElementById('soap-filter');
-                const selectedValue = e.target.value;
-                
-                if (selectedValue) {
-                    categoryFilter = selectedValue;
-                    dropdown.style.backgroundColor = '#eab308';
-                    dropdown.style.color = 'white';
-                    document.getElementById('pelvic-health-btn').className = 'btn btn-secondary';
-                    document.getElementById('acute-care-btn').className = 'btn btn-secondary';
-                } else {
-                    categoryFilter = '';
-                    dropdown.style.backgroundColor = '#e5e7eb';
-                    dropdown.style.color = '#374151';
-                }
-                
-                renderResults();
-            });
-
-            document.getElementById('clear-filters-btn').addEventListener('click', () => {
-                searchQuery = '';
-                categoryFilter = '';
-                showFavoritesOnly = false;
-                
-                document.getElementById('search-input').value = '';
-                document.getElementById('favorites-btn').className = 'btn btn-secondary';
-                document.getElementById('favorites-btn').textContent = 'Favorites Only';
-                document.getElementById('pelvic-health-btn').className = 'btn btn-secondary';
-                document.getElementById('acute-care-btn').className = 'btn btn-secondary';
-                document.getElementById('soap-filter').value = '';
-                document.getElementById('soap-filter').style.backgroundColor = '#e5e7eb';
-                document.getElementById('soap-filter').style.color = '#374151';
-                
-                renderResults();
-                showStatus('All filters cleared');
-            });
-
-            document.getElementById('search-input').addEventListener('input', (e) => {
+            document.getElementById('clear-filters-btn').addEventListener('click', clearFilters);
+            
+            // Search functionality
+            const searchInput = document.getElementById('search-input');
+            const clearSearch = document.getElementById('clear-search');
+            
+            searchInput.addEventListener('input', function(e) {
                 searchQuery = e.target.value;
+                clearSearch.style.display = searchQuery ? 'block' : 'none';
                 renderResults();
             });
-
-            console.log('App initialized');
+            
+            clearSearch.addEventListener('click', function() {
+                searchInput.value = '';
+                searchQuery = '';
+                clearSearch.style.display = 'none';
+                renderResults();
+                searchInput.focus();
+            });
+            
+            // Category filters - handle predefined category filters
+            document.querySelectorAll('.filter-btn[data-category]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    setActiveCategory(this.dataset.category);
+                });
+            });
+            
+            // SOAP filter dropdown
+            document.getElementById('soap-filter').addEventListener('change', function(e) {
+                activeSoapFilter = e.target.value;
+                renderResults();
+            });
+            
+            // Sort functionality
+            document.getElementById('sort-select').addEventListener('change', function(e) {
+                sortBy = e.target.value;
+                renderResults();
+            });
+            
+            // Initial render
+            renderResults();
         }
 
         document.addEventListener('DOMContentLoaded', init);
