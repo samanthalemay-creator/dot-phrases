@@ -231,16 +231,6 @@
             font-weight: 500;
         }
         
-        .badge-custom {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-        
-        .badge-usage {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-        
         .phrase-description {
             color: #374151;
             margin-bottom: 8px;
@@ -383,7 +373,6 @@
             gap: 8px;
         }
 
-        /* Modal styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -424,6 +413,72 @@
             gap: 12px;
             justify-content: flex-end;
         }
+
+        /* Bulk operations styles */
+        .bulk-actions {
+            display: none;
+            background-color: #f3f4f6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #d1d5db;
+        }
+
+        .bulk-actions.active {
+            display: block;
+        }
+
+        .bulk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .bulk-title {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .bulk-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .checkbox {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+
+        .select-all-row {
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .merge-options {
+            display: none;
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .merge-options.active {
+            display: block;
+        }
+
+        .merge-title {
+            font-weight: 600;
+            color: #0369a1;
+            margin-bottom: 12px;
+        }
     </style>
 </head>
 <body>
@@ -448,6 +503,25 @@
                         Upload your CSV file with dot phrases. Expected columns: Dot Phrase, Category, SOAP Location, Brief Description, Full Description
                     </p>
                 </div>
+
+        <!-- Merge Options Panel -->
+        <div id="merge-options" class="merge-options">
+            <h3 class="merge-title">Import Options - Choose how to handle your data:</h3>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px;">
+                    <input type="radio" name="merge-mode" value="replace" checked>
+                    <strong>Replace</strong> - Clear existing data and import new file
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px;">
+                    <input type="radio" name="merge-mode" value="merge">
+                    <strong>Merge</strong> - Add new phrases and update duplicates
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px;">
+                    <input type="radio" name="merge-mode" value="skip-duplicates">
+                    <strong>Skip Duplicates</strong> - Only add new phrases, ignore existing ones
+                </label>
+            </div>
+        </div>
             </div>
             <div id="loading" class="loading" style="display: none;">
                 <div class="spinner"></div>
@@ -485,17 +559,44 @@
             </button>
 
             <button id="export-btn" class="btn btn-primary">
-                📥 Export CSV
+                Export CSV
+            </button>
+
+            <button id="bulk-select-btn" class="btn btn-secondary">
+                Bulk Select
             </button>
 
             <button id="delete-all-btn" class="btn btn-danger">
-                🗑️ Delete All
+                Delete All
             </button>
+        </div>
+
+        <!-- Bulk Actions Panel -->
+        <div id="bulk-actions" class="bulk-actions">
+            <div class="bulk-header">
+                <div class="bulk-title">
+                    <span id="selected-count">0</span> phrases selected
+                </div>
+                <div class="bulk-controls">
+                    <button id="bulk-delete" class="btn btn-danger">Delete Selected</button>
+                    <button id="bulk-export" class="btn btn-primary">Export Selected</button>
+                    <button id="cancel-bulk" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Select All Row -->
+        <div id="select-all-row" class="select-all-row" style="display: none;">
+            <input type="checkbox" id="select-all" class="checkbox">
+            <label for="select-all" style="cursor: pointer;">Select All</label>
+            <span style="color: #6b7280; font-size: 0.875rem; margin-left: auto;">
+                Use checkboxes to select phrases for bulk operations
+            </span>
         </div>
 
         <div id="form-panel" class="form-panel" style="display: none;">
             <h3 id="form-title" class="form-title">Create New Dot Phrase</h3>
-            <form id="phrase-form">
+            <div id="phrase-form">
                 <div class="form-group">
                     <label class="form-label">Dot Phrase *</label>
                     <input
@@ -521,15 +622,22 @@
                     <label class="form-label">Category</label>
                     <select id="form-category" class="form-input">
                         <option value="">Select Category</option>
-                        <option value="Subjective">Subjective</option>
-                        <option value="Objective">Objective</option>
-                        <option value="Assessment">Assessment</option>
-                        <option value="Plan">Plan</option>
                         <option value="Physical Exam">Physical Exam</option>
                         <option value="History">History</option>
                         <option value="Pelvic Health">Pelvic Health</option>
                         <option value="Acute Care">Acute Care</option>
                         <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">SOAP Location</label>
+                    <select id="form-soap-location" class="form-input">
+                        <option value="">Select SOAP Location</option>
+                        <option value="Subjective">Subjective</option>
+                        <option value="Objective">Objective</option>
+                        <option value="Assessment">Assessment</option>
+                        <option value="Plan">Plan</option>
                     </select>
                 </div>
 
@@ -543,14 +651,14 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="button" id="save-btn" class="btn btn-primary">
                         Save
                     </button>
                     <button type="button" id="cancel-btn" class="btn btn-secondary">
                         Cancel
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
 
         <div class="search-container">
@@ -577,7 +685,6 @@
             <p>Try uploading a CSV file or use different search terms</p>
         </div>
 
-        <!-- Custom Modal -->
         <div id="modal-overlay" class="modal-overlay" style="display: none;">
             <div class="modal">
                 <h3 id="modal-title" class="modal-title">Confirm Action</h3>
@@ -591,7 +698,6 @@
     </div>
 
     <script>
-        // Application state
         let dotPhrases = [];
         let favorites = new Set();
         let searchQuery = '';
@@ -600,8 +706,10 @@
         let selectedPhrase = null;
         let showCreateForm = false;
         let editingPhrase = null;
+        let bulkMode = false;
+        let selectedPhrases = new Set();
+        let importMode = 'replace'; // 'replace', 'merge', 'skip-duplicates'
 
-        // Load saved data
         function loadData() {
             const savedPhrases = localStorage.getItem('dotPhrases');
             const savedFavorites = localStorage.getItem('favorites');
@@ -615,13 +723,11 @@
             }
         }
 
-        // Save data
         function saveData() {
             localStorage.setItem('dotPhrases', JSON.stringify(dotPhrases));
             localStorage.setItem('favorites', JSON.stringify([...favorites]));
         }
 
-        // Show status message
         function showStatus(message, type = 'success') {
             const statusDiv = document.getElementById('status-messages');
             const messageDiv = document.createElement('div');
@@ -634,20 +740,183 @@
             }, 5000);
         }
 
-        // Show debug info
-        function showDebugInfo(message) {
-            const statusDiv = document.getElementById('status-messages');
-            const debugDiv = document.createElement('div');
-            debugDiv.className = 'debug-info';
-            debugDiv.textContent = message;
-            statusDiv.appendChild(debugDiv);
+        function showModal(title, message, onConfirm) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-overlay').style.display = 'flex';
             
-            setTimeout(() => {
-                debugDiv.remove();
-            }, 10000);
+            const confirmBtn = document.getElementById('modal-confirm');
+            const cancelBtn = document.getElementById('modal-cancel');
+            const overlay = document.getElementById('modal-overlay');
+            
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            
+            newConfirmBtn.addEventListener('click', () => {
+                hideModal();
+                onConfirm();
+            });
+            
+            newCancelBtn.addEventListener('click', hideModal);
+            
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    hideModal();
+                }
+            });
         }
 
-        // Simple CSV parsing
+        function hideModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        // Duplicate detection
+        function checkForDuplicates(newPhrase, existingPhrases = dotPhrases) {
+            const duplicates = existingPhrases.filter(existing => 
+                existing.dotPhrase.toLowerCase() === newPhrase.dotPhrase.toLowerCase()
+            );
+            return duplicates;
+        }
+
+        // Bulk operations functions
+        function toggleBulkMode() {
+            bulkMode = !bulkMode;
+            selectedPhrases.clear();
+            
+            const bulkBtn = document.getElementById('bulk-select-btn');
+            const bulkActions = document.getElementById('bulk-actions');
+            const selectAllRow = document.getElementById('select-all-row');
+            
+            if (bulkMode) {
+                bulkBtn.textContent = 'Exit Bulk';
+                bulkBtn.className = 'btn btn-secondary active';
+                bulkActions.classList.add('active');
+                selectAllRow.style.display = 'flex';
+            } else {
+                bulkBtn.textContent = 'Bulk Select';
+                bulkBtn.className = 'btn btn-secondary';
+                bulkActions.classList.remove('active');
+                selectAllRow.style.display = 'none';
+                document.getElementById('select-all').checked = false;
+            }
+            
+            updateSelectedCount();
+            renderResults();
+        }
+
+        function togglePhraseSelection(phraseId) {
+            if (selectedPhrases.has(phraseId)) {
+                selectedPhrases.delete(phraseId);
+            } else {
+                selectedPhrases.add(phraseId);
+            }
+            updateSelectedCount();
+            updateSelectAllCheckbox();
+        }
+
+        function selectAllPhrases() {
+            const filteredPhrases = getFilteredPhrases();
+            const selectAll = document.getElementById('select-all').checked;
+            
+            if (selectAll) {
+                filteredPhrases.forEach(phrase => selectedPhrases.add(phrase.id));
+            } else {
+                selectedPhrases.clear();
+            }
+            
+            updateSelectedCount();
+            renderResults();
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selected-count').textContent = selectedPhrases.size;
+        }
+
+        function updateSelectAllCheckbox() {
+            const filteredPhrases = getFilteredPhrases();
+            const selectAllCheckbox = document.getElementById('select-all');
+            
+            if (filteredPhrases.length === 0) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            } else if (selectedPhrases.size === 0) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            } else if (filteredPhrases.every(phrase => selectedPhrases.has(phrase.id))) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = true;
+            } else {
+                selectAllCheckbox.indeterminate = true;
+                selectAllCheckbox.checked = false;
+            }
+        }
+
+        function bulkDeleteSelected() {
+            if (selectedPhrases.size === 0) {
+                showStatus('No phrases selected for deletion', 'error');
+                return;
+            }
+
+            const count = selectedPhrases.size;
+            showModal(
+                'Delete Selected Phrases',
+                `Are you sure you want to delete ${count} selected phrases? This action cannot be undone.`,
+                () => {
+                    dotPhrases = dotPhrases.filter(phrase => !selectedPhrases.has(phrase.id));
+                    selectedPhrases.forEach(id => favorites.delete(id));
+                    selectedPhrases.clear();
+                    saveData();
+                    updateSelectedCount();
+                    renderResults();
+                    showStatus(`Deleted ${count} phrases successfully`);
+                }
+            );
+        }
+
+        function bulkExportSelected() {
+            if (selectedPhrases.size === 0) {
+                showStatus('No phrases selected for export', 'error');
+                return;
+            }
+
+            const selectedData = dotPhrases.filter(phrase => selectedPhrases.has(phrase.id));
+            const headers = ['Dot Phrase', 'Category', 'SOAP Location', 'Brief Description', 'Full Description'];
+            
+            const rows = selectedData.map(phrase => {
+                return [
+                    phrase.dotPhrase || '',
+                    phrase.originalCategory || '',
+                    phrase.soapLocation || phrase.category || '',
+                    phrase.description || '',
+                    phrase.content || ''
+                ].map(field => {
+                    const escaped = field.replace(/"/g, '""');
+                    return (escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')) 
+                        ? `"${escaped}"` 
+                        : escaped;
+                });
+            });
+
+            const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `selected-phrases-${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showStatus(`Exported ${selectedData.length} selected phrases`);
+            }
+        }
+
         function parseCSV(text) {
             const lines = text.split('\n').filter(line => line.trim());
             
@@ -655,7 +924,6 @@
                 throw new Error('File appears to be empty');
             }
             
-            // Get headers from first line
             const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
             const data = [];
             
@@ -673,54 +941,184 @@
             return data;
         }
 
-        // Custom modal functions
-        function showModal(title, message, onConfirm) {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-message').textContent = message;
-            document.getElementById('modal-overlay').style.display = 'flex';
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show merge options
+            document.getElementById('merge-options').classList.add('active');
             
-            // Remove previous event listeners
-            const confirmBtn = document.getElementById('modal-confirm');
-            const cancelBtn = document.getElementById('modal-cancel');
-            const overlay = document.getElementById('modal-overlay');
+            // Get selected import mode
+            const selectedMode = document.querySelector('input[name="merge-mode"]:checked').value;
+            importMode = selectedMode;
+
+            const loading = document.getElementById('loading');
+            loading.style.display = 'flex';
+
+            const reader = new FileReader();
             
-            const newConfirmBtn = confirmBtn.cloneNode(true);
-            const newCancelBtn = cancelBtn.cloneNode(true);
-            
-            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-            
-            // Add new event listeners
-            newConfirmBtn.addEventListener('click', () => {
-                hideModal();
-                onConfirm();
-            });
-            
-            newCancelBtn.addEventListener('click', hideModal);
-            
-            // Close on overlay click
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    hideModal();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const data = parseCSV(content);
+                    
+                    if (data.length === 0) {
+                        throw new Error('No data rows found in CSV file');
+                    }
+
+                    const mappedData = data.map((row, index) => {
+                        const keys = Object.keys(row);
+                        
+                        const getDotPhrase = () => {
+                            for (const key of keys) {
+                                const lowerKey = key.toLowerCase().trim();
+                                if (lowerKey === 'dot phrase' || lowerKey === 'dotphrase') {
+                                    return row[key] || '';
+                                }
+                            }
+                            return row[keys[0]] || '';
+                        };
+
+                        const getCategory = () => {
+                            for (const key of keys) {
+                                const lowerKey = key.toLowerCase().trim();
+                                if (lowerKey === 'category') {
+                                    return row[key] || '';
+                                }
+                            }
+                            return '';
+                        };
+
+                        const getSoapLocation = () => {
+                            for (const key of keys) {
+                                const lowerKey = key.toLowerCase().trim();
+                                if (lowerKey === 'soap location' || lowerKey === 'soaplocation') {
+                                    return row[key] || '';
+                                }
+                            }
+                            return '';
+                        };
+
+                        const getBriefDescription = () => {
+                            for (const key of keys) {
+                                const lowerKey = key.toLowerCase().trim();
+                                if (lowerKey === 'brief description' || lowerKey === 'briefdescription') {
+                                    return row[key] || '';
+                                }
+                            }
+                            return '';
+                        };
+
+                        const getFullDescription = () => {
+                            for (const key of keys) {
+                                const lowerKey = key.toLowerCase().trim();
+                                if (lowerKey === 'full description' || lowerKey === 'fulldescription') {
+                                    return row[key] || '';
+                                }
+                            }
+                            return '';
+                        };
+
+                        const primaryCategory = getSoapLocation() || getCategory();
+
+                        return {
+                            id: `import-${Date.now()}-${index}`,
+                            dotPhrase: getDotPhrase(),
+                            description: getBriefDescription(),
+                            content: getFullDescription(),
+                            category: primaryCategory,
+                            originalCategory: getCategory(),
+                            soapLocation: getSoapLocation()
+                        };
+                    }).filter(item => item.dotPhrase && item.dotPhrase.trim());
+
+                    if (mappedData.length === 0) {
+                        throw new Error('No valid dot phrases found. Check your CSV format.');
+                    }
+
+                    // Handle different import modes
+                    let duplicates = [];
+                    let skipped = 0;
+                    let merged = 0;
+                    let added = 0;
+
+                    if (importMode === 'replace') {
+                        dotPhrases = mappedData;
+                        favorites.clear(); // Clear favorites when replacing
+                        showStatus(`Successfully replaced with ${mappedData.length} dot phrases!`);
+                    } else if (importMode === 'merge') {
+                        // Check for duplicates and update existing phrases
+                        mappedData.forEach(newPhrase => {
+                            const existingDuplicates = checkForDuplicates(newPhrase);
+                            if (existingDuplicates.length > 0) {
+                                duplicates.push({
+                                    new: newPhrase,
+                                    existing: existingDuplicates[0]
+                                });
+                                // Update existing phrase
+                                const index = dotPhrases.findIndex(p => p.id === existingDuplicates[0].id);
+                                if (index !== -1) {
+                                    dotPhrases[index] = { 
+                                        ...dotPhrases[index], 
+                                        ...newPhrase, 
+                                        id: dotPhrases[index].id  // Keep original ID
+                                    };
+                                }
+                                merged++;
+                            } else {
+                                dotPhrases.push(newPhrase);
+                                added++;
+                            }
+                        });
+                        
+                        if (duplicates.length > 0) {
+                            showStatus(`Merged ${mappedData.length} phrases (${merged} duplicates updated, ${added} new phrases added)`);
+                        } else {
+                            showStatus(`Successfully added ${added} new dot phrases!`);
+                        }
+                    } else if (importMode === 'skip-duplicates') {
+                        mappedData.forEach(newPhrase => {
+                            const existingDuplicates = checkForDuplicates(newPhrase);
+                            if (existingDuplicates.length > 0) {
+                                skipped++;
+                            } else {
+                                dotPhrases.push(newPhrase);
+                                added++;
+                            }
+                        });
+                        showStatus(`Added ${added} new phrases (${skipped} duplicates skipped)`);
+                    }
+
+                    renderResults();
+                    
+                } catch (error) {
+                    console.error('Parsing error:', error);
+                    showStatus(`Error: ${error.message}`, 'error');
+                } finally {
+                    loading.style.display = 'none';
+                    document.getElementById('merge-options').classList.remove('active');
+                    event.target.value = '';
                 }
-            });
+            };
+
+            reader.onerror = function() {
+                loading.style.display = 'none';
+                showStatus('Error reading file', 'error');
+                document.getElementById('merge-options').classList.remove('active');
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
         }
 
-        function hideModal() {
-            document.getElementById('modal-overlay').style.display = 'none';
-        }
-
-        // Export data as CSV
         function exportToCSV() {
             if (dotPhrases.length === 0) {
                 showStatus('No data to export', 'error');
                 return;
             }
 
-            // Create CSV header matching the original structure
             const headers = ['Dot Phrase', 'Category', 'SOAP Location', 'Brief Description', 'Full Description'];
             
-            // Create CSV rows
             const rows = dotPhrases.map(phrase => {
                 return [
                     phrase.dotPhrase || '',
@@ -729,7 +1127,6 @@
                     phrase.description || '',
                     phrase.content || ''
                 ].map(field => {
-                    // Escape quotes and wrap in quotes if contains comma, quote, or newline
                     const escaped = field.replace(/"/g, '""');
                     return (escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')) 
                         ? `"${escaped}"` 
@@ -737,10 +1134,8 @@
                 });
             });
 
-            // Combine header and rows
             const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
 
-            // Create and trigger download
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             
@@ -759,7 +1154,6 @@
             }
         }
 
-        // Delete all phrases
         function deleteAllPhrases() {
             if (dotPhrases.length === 0) {
                 showStatus('No phrases to delete', 'error');
@@ -781,7 +1175,6 @@
             );
         }
 
-        // Start editing
         function startEditing(phraseId) {
             const phrase = dotPhrases.find(p => p.id === phraseId);
             if (!phrase) return;
@@ -790,14 +1183,14 @@
             document.getElementById('form-title').textContent = 'Edit Dot Phrase';
             document.getElementById('form-dotphrase').value = phrase.dotPhrase;
             document.getElementById('form-description').value = phrase.description || '';
-            document.getElementById('form-category').value = phrase.category || '';
+            document.getElementById('form-category').value = phrase.originalCategory || '';
+            document.getElementById('form-soap-location').value = phrase.soapLocation || '';
             document.getElementById('form-content').value = phrase.content || '';
             
             showCreateForm = true;
             document.getElementById('form-panel').style.display = 'block';
         }
 
-        // Delete phrase
         function deletePhrase(phraseId) {
             showModal(
                 'Delete Phrase',
@@ -816,7 +1209,6 @@
             navigator.clipboard.writeText(text).then(() => {
                 showStatus('Copied to clipboard!');
             }).catch(() => {
-                // Fallback
                 const textArea = document.createElement('textarea');
                 textArea.value = text;
                 document.body.appendChild(textArea);
@@ -827,7 +1219,6 @@
             });
         }
 
-        // Toggle favorite
         function toggleFavorite(phraseId) {
             if (favorites.has(phraseId)) {
                 favorites.delete(phraseId);
@@ -837,14 +1228,12 @@
             renderResults();
         }
 
-        // Highlight text
         function highlightText(text, query) {
             if (!query.trim()) return text;
             const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
             return text.replace(regex, '<span class="highlight">$1</span>');
         }
 
-        // Filter phrases
         function getFilteredPhrases() {
             let filtered = dotPhrases;
 
@@ -874,7 +1263,6 @@
             return filtered.sort((a, b) => (a.dotPhrase || '').localeCompare(b.dotPhrase || ''));
         }
 
-        // Render results
         function renderResults() {
             const filteredPhrases = getFilteredPhrases();
             const resultsGrid = document.getElementById('results-grid');
@@ -882,7 +1270,6 @@
             const resultsCount = document.getElementById('results-count');
             const resultsStats = document.getElementById('results-stats');
 
-            // Update counters
             let filterText = '';
             if (searchQuery) filterText += ` for "${searchQuery}"`;
             if (showFavoritesOnly) filterText += ' (favorites only)';
@@ -891,7 +1278,11 @@
             resultsCount.textContent = `Showing ${filteredPhrases.length} of ${dotPhrases.length} dot phrases${filterText}`;
             resultsStats.textContent = `${favorites.size} favorites`;
 
-            // Clear results
+            // Update select all checkbox if in bulk mode
+            if (bulkMode) {
+                updateSelectAllCheckbox();
+            }
+
             resultsGrid.innerHTML = '';
 
             if (filteredPhrases.length === 0) {
@@ -901,266 +1292,116 @@
 
             noResults.style.display = 'none';
 
-            // Render phrases
             filteredPhrases.forEach((phrase, index) => {
                 const phraseCard = document.createElement('div');
                 phraseCard.className = 'phrase-card';
-                phraseCard.onclick = () => {
-                    selectedPhrase = selectedPhrase === index ? null : index;
-                    renderResults();
-                };
+                
+                // Only make cards clickable when not in bulk mode
+                if (!bulkMode) {
+                    phraseCard.onclick = () => {
+                        selectedPhrase = selectedPhrase === index ? null : index;
+                        renderResults();
+                    };
+                }
 
                 const isExpanded = selectedPhrase === index;
                 const isFavorited = favorites.has(phrase.id);
 
-                phraseCard.innerHTML = `
-                    <div class="phrase-header">
-                        <div class="phrase-content">
-                            <div class="phrase-title-row">
-                                <h3 class="phrase-title">
-                                    ${highlightText(phrase.dotPhrase || '', searchQuery)}
-                                </h3>
-                                ${phrase.category ? `<span class="badge" style="background-color: #f3e8ff; color: #7c3aed;">${phrase.category}</span>` : ''}
-                            </div>
-                            <p class="phrase-description">
-                                ${highlightText(phrase.description || '', searchQuery)}
-                            </p>
-                            
-                            ${phrase.content ? `
-                                <div class="phrase-preview">
-                                    ${isExpanded ? `
-                                        <div class="expanded-content">
-                                            <h4 style="font-weight: 600; margin-bottom: 8px;">Template Content:</h4>
-                                            <pre class="template-content">${highlightText(phrase.content, searchQuery)}</pre>
-                                        </div>
-                                    ` : `
-                                        <p>
-                                            ${highlightText(
-                                                phrase.content.length > 100 
-                                                    ? phrase.content.substring(0, 100) + '...' 
-                                                    : phrase.content,
-                                                searchQuery
-                                            )}
-                                        </p>
-                                    `}
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div class="phrase-actions">
-                            <button
-                                onclick="event.stopPropagation(); toggleFavorite('${phrase.id}')"
-                                class="action-btn ${isFavorited ? 'favorite' : ''}"
-                                title="${isFavorited ? 'Remove from favorites' : 'Add to favorites'}"
-                            >
-                                ${isFavorited ? '⭐' : '☆'}
-                            </button>
+                let cardHTML = '<div class="phrase-header">';
+                
+                // Add checkbox for bulk mode
+                if (bulkMode) {
+                    const isSelected = selectedPhrases.has(phrase.id);
+                    cardHTML += '<input type="checkbox" class="checkbox" ';
+                    cardHTML += isSelected ? 'checked ' : '';
+                    cardHTML += 'onchange="event.stopPropagation(); togglePhraseSelection(\'' + phrase.id + '\')">';
+                }
+                
+                cardHTML += '<div class="phrase-content"' + (bulkMode ? ' style="margin-left: 8px;"' : '') + '>';
+                cardHTML += '<div class="phrase-title-row">';
+                cardHTML += '<h3 class="phrase-title">' + highlightText(phrase.dotPhrase || '', searchQuery) + '</h3>';
+                
+                if (phrase.category) {
+                    cardHTML += '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed;">' + phrase.category + '</span>';
+                }
+                
+                cardHTML += '</div>';
+                cardHTML += '<p class="phrase-description">' + highlightText(phrase.description || '', searchQuery) + '</p>';
+                
+                if (phrase.content) {
+                    cardHTML += '<div class="phrase-preview">';
+                    if (isExpanded) {
+                        cardHTML += '<div class="expanded-content">';
+                        cardHTML += '<h4 style="font-weight: 600; margin-bottom: 8px;">Template Content:</h4>';
+                        cardHTML += '<pre class="template-content">' + highlightText(phrase.content, searchQuery) + '</pre>';
+                        cardHTML += '</div>';
+                    } else {
+                        const preview = phrase.content.length > 100 ? phrase.content.substring(0, 100) + '...' : phrase.content;
+                        cardHTML += '<p>' + highlightText(preview, searchQuery) + '</p>';
+                    }
+                    cardHTML += '</div>';
+                }
+                
+                cardHTML += '</div>';
+                
+                // Only show action buttons when not in bulk mode
+                if (!bulkMode) {
+                    cardHTML += '<div class="phrase-actions">';
+                    
+                    const favoriteIcon = isFavorited ? '⭐' : '☆';
+                    const favoriteClass = isFavorited ? 'favorite' : '';
+                    const favoriteTitle = isFavorited ? 'Remove from favorites' : 'Add to favorites';
+                    cardHTML += '<button onclick="event.stopPropagation(); toggleFavorite(\'' + phrase.id + '\')" class="action-btn ' + favoriteClass + '" title="' + favoriteTitle + '">' + favoriteIcon + '</button>';
+                    
+                    cardHTML += '<button onclick="event.stopPropagation(); startEditing(\'' + phrase.id + '\')" class="action-btn" title="Edit phrase">✏️</button>';
+                    
+                    cardHTML += '<button onclick="event.stopPropagation(); deletePhrase(\'' + phrase.id + '\')" class="action-btn danger" title="Delete phrase">🗑️</button>';
+                    
+                    const textToCopy = phrase.content ? phrase.content.replace(/'/g, "\\'") : phrase.dotPhrase.replace(/'/g, "\\'");
+                    cardHTML += '<button onclick="event.stopPropagation(); copyToClipboard(\'' + textToCopy + '\', \'' + phrase.id + '\')" class="action-btn" title="Copy to clipboard">📋</button>';
+                    
+                    cardHTML += '</div>';
+                }
+                
+                cardHTML += '</div>';
 
-                            <button
-                                onclick="event.stopPropagation(); startEditing('${phrase.id}')"
-                                class="action-btn"
-                                title="Edit phrase"
-                            >
-                                ✏️
-                            </button>
-
-                            <button
-                                onclick="event.stopPropagation(); deletePhrase('${phrase.id}')"
-                                class="action-btn danger"
-                                title="Delete phrase"
-                            >
-                                🗑️
-                            </button>
-
-                            <button
-                                onclick="event.stopPropagation(); copyToClipboard('${phrase.content ? phrase.content.replace(/'/g, "\\'") : phrase.dotPhrase.replace(/'/g, "\\'")}', '${phrase.id}')"
-                                class="action-btn"
-                                title="Copy to clipboard"
-                            >
-                                📋
-                            </button>
-                        </div>
-                    </div>
-                `;
-
+                phraseCard.innerHTML = cardHTML;
                 resultsGrid.appendChild(phraseCard);
             });
         }
 
-        // File upload handler
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const loading = document.getElementById('loading');
-            loading.style.display = 'flex';
-
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    const content = e.target.result;
-                    const data = parseCSV(content);
-                    
-                    if (data.length === 0) {
-                        throw new Error('No data rows found in CSV file');
-                    }
-
-                    // Show the actual column headers found
-                    const headers = Object.keys(data[0]);
-                    console.log('CSV Headers found:', headers);
-                    console.log('First row data:', data[0]);
-
-                    // Convert to our format
-                    const mappedData = data.map((row, index) => {
-                        const keys = Object.keys(row);
-                        console.log(`Row ${index} keys:`, keys);
-                        console.log(`Row ${index} data:`, row);
-                        
-                        // Map specific columns based on your CSV structure
-                        const getDotPhrase = () => {
-                            // Look for "Dot Phrase" column specifically
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'dot phrase' || lowerKey === 'dotphrase') {
-                                    return row[key] || '';
-                                }
-                            }
-                            // Fallback to first column
-                            return row[keys[0]] || '';
-                        };
-
-                        const getCategory = () => {
-                            // Look for "Category" column
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'category') {
-                                    return row[key] || '';
-                                }
-                            }
-                            return '';
-                        };
-
-                        const getSoapLocation = () => {
-                            // Look for "SOAP Location" column
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'soap location' || lowerKey === 'soaplocation') {
-                                    return row[key] || '';
-                                }
-                            }
-                            return '';
-                        };
-
-                        const getBriefDescription = () => {
-                            // Look for "Brief Description" column specifically
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'brief description' || lowerKey === 'briefdescription') {
-                                    return row[key] || '';
-                                }
-                            }
-                            return '';
-                        };
-
-                        const getFullDescription = () => {
-                            // Look for "Full Description" column
-                            for (const key of keys) {
-                                const lowerKey = key.toLowerCase().trim();
-                                if (lowerKey === 'full description' || lowerKey === 'fulldescription') {
-                                    return row[key] || '';
-                                }
-                            }
-                            return '';
-                        };
-
-                        // Use SOAP Location as the primary category if available, otherwise use Category
-                        const primaryCategory = getSoapLocation() || getCategory();
-
-                        const result = {
-                            id: `import-${Date.now()}-${index}`,
-                            dotPhrase: getDotPhrase(),
-                            description: getBriefDescription(),
-                            content: getFullDescription(),
-                            category: primaryCategory,
-                            originalCategory: getCategory(),
-                            soapLocation: getSoapLocation()
-                        };
-
-                        // Debug log for first few rows
-                        if (index < 3) {
-                            console.log(`Row ${index} mapped:`, result);
-                        }
-
-                        return result;
-                    }).filter(item => item.dotPhrase && item.dotPhrase.trim());
-
-                    console.log('Mapped data:', mappedData.length, 'valid phrases');
-
-                    if (mappedData.length === 0) {
-                        throw new Error('No valid dot phrases found. Check your CSV format.');
-                    }
-
-                    dotPhrases = mappedData;
-                    renderResults();
-                    
-                    showStatus(`Successfully loaded ${mappedData.length} dot phrases!`);
-                    
-                } catch (error) {
-                    console.error('Parsing error:', error);
-                    showStatus(`Error: ${error.message}`, 'error');
-                } finally {
-                    loading.style.display = 'none';
-                    event.target.value = '';
-                }
-            };
-
-            reader.onerror = function() {
-                console.error('FileReader error');
-                loading.style.display = 'none';
-                showStatus('Error reading file', 'error');
-                event.target.value = '';
-            };
-
-            console.log('Starting to read file...');
-            reader.readAsText(file);
-        }
-
-        // Initialize
         function init() {
             loadData();
             renderResults();
 
-            // File upload
             document.getElementById('file-upload').addEventListener('change', handleFileUpload);
 
-            // Create new phrase button
             document.getElementById('create-btn').addEventListener('click', () => {
                 editingPhrase = null;
                 document.getElementById('form-title').textContent = 'Create New Dot Phrase';
                 document.getElementById('form-dotphrase').value = '';
                 document.getElementById('form-description').value = '';
                 document.getElementById('form-category').value = '';
+                document.getElementById('form-soap-location').value = '';
                 document.getElementById('form-content').value = '';
                 
                 showCreateForm = !showCreateForm;
                 document.getElementById('form-panel').style.display = showCreateForm ? 'block' : 'none';
             });
 
-            // Cancel form button
             document.getElementById('cancel-btn').addEventListener('click', () => {
                 showCreateForm = false;
                 editingPhrase = null;
                 document.getElementById('form-panel').style.display = 'none';
             });
 
-            // Form submission
-            document.getElementById('phrase-form').addEventListener('submit', (e) => {
-                e.preventDefault();
+            document.getElementById('save-btn').addEventListener('click', () => {
+                console.log('Save button clicked');
                 
                 const dotPhrase = document.getElementById('form-dotphrase').value.trim();
                 const description = document.getElementById('form-description').value.trim();
                 const category = document.getElementById('form-category').value.trim();
+                const soapLocation = document.getElementById('form-soap-location').value.trim();
                 const content = document.getElementById('form-content').value.trim();
 
                 if (!dotPhrase) {
@@ -1168,26 +1409,70 @@
                     return;
                 }
 
+                // Check for duplicates when creating new phrase
+                if (!editingPhrase) {
+                    const duplicates = checkForDuplicates({ dotPhrase });
+                    if (duplicates.length > 0) {
+                        showModal(
+                            'Duplicate Dot Phrase Detected',
+                            `A dot phrase "${dotPhrase}" already exists. Do you want to update the existing one instead?`,
+                            () => {
+                                // Update the existing phrase
+                                const existingPhrase = duplicates[0];
+                                const index = dotPhrases.findIndex(p => p.id === existingPhrase.id);
+                                if (index !== -1) {
+                                    dotPhrases[index] = {
+                                        ...dotPhrases[index],
+                                        dotPhrase,
+                                        description,
+                                        category: soapLocation || category,
+                                        originalCategory: category,
+                                        soapLocation: soapLocation,
+                                        content
+                                    };
+                                }
+                                saveData();
+                                renderResults();
+                                showCreateForm = false;
+                                editingPhrase = null;
+                                document.getElementById('form-panel').style.display = 'none';
+                                
+                                // Clear form fields
+                                document.getElementById('form-dotphrase').value = '';
+                                document.getElementById('form-description').value = '';
+                                document.getElementById('form-category').value = '';
+                                document.getElementById('form-soap-location').value = '';
+                                document.getElementById('form-content').value = '';
+                                
+                                showStatus('Existing phrase updated successfully!');
+                            }
+                        );
+                        return;
+                    }
+                }
+
                 if (editingPhrase) {
-                    // Update existing phrase
                     const index = dotPhrases.findIndex(p => p.id === editingPhrase.id);
                     if (index !== -1) {
                         dotPhrases[index] = {
                             ...dotPhrases[index],
                             dotPhrase,
                             description,
-                            category,
+                            category: soapLocation || category,
+                            originalCategory: category,
+                            soapLocation: soapLocation,
                             content
                         };
                     }
                     showStatus('Phrase updated successfully!');
                 } else {
-                    // Create new phrase
                     const newPhrase = {
                         id: `custom-${Date.now()}`,
                         dotPhrase,
                         description,
-                        category,
+                        category: soapLocation || category,
+                        originalCategory: category,
+                        soapLocation: soapLocation,
                         content
                     };
                     dotPhrases.push(newPhrase);
@@ -1197,20 +1482,28 @@
                 saveData();
                 renderResults();
                 
-                // Reset form
                 showCreateForm = false;
                 editingPhrase = null;
                 document.getElementById('form-panel').style.display = 'none';
-                document.getElementById('phrase-form').reset();
+                
+                // Clear form fields
+                document.getElementById('form-dotphrase').value = '';
+                document.getElementById('form-description').value = '';
+                document.getElementById('form-category').value = '';
+                document.getElementById('form-soap-location').value = '';
+                document.getElementById('form-content').value = '';
             });
 
-            // Export button
             document.getElementById('export-btn').addEventListener('click', exportToCSV);
-
-            // Delete All button
             document.getElementById('delete-all-btn').addEventListener('click', deleteAllPhrases);
 
-            // Favorites button
+            // Bulk operations event handlers
+            document.getElementById('bulk-select-btn').addEventListener('click', toggleBulkMode);
+            document.getElementById('select-all').addEventListener('change', selectAllPhrases);
+            document.getElementById('bulk-delete').addEventListener('click', bulkDeleteSelected);
+            document.getElementById('bulk-export').addEventListener('click', bulkExportSelected);
+            document.getElementById('cancel-bulk').addEventListener('click', toggleBulkMode);
+
             document.getElementById('favorites-btn').addEventListener('click', () => {
                 showFavoritesOnly = !showFavoritesOnly;
                 const btn = document.getElementById('favorites-btn');
@@ -1219,7 +1512,6 @@
                 renderResults();
             });
 
-            // Pelvic Health filter
             document.getElementById('pelvic-health-btn').addEventListener('click', () => {
                 const btn = document.getElementById('pelvic-health-btn');
                 const isActive = btn.className.includes('active');
@@ -1239,7 +1531,6 @@
                 renderResults();
             });
 
-            // Acute Care filter
             document.getElementById('acute-care-btn').addEventListener('click', () => {
                 const btn = document.getElementById('acute-care-btn');
                 const isActive = btn.className.includes('active');
@@ -1259,7 +1550,6 @@
                 renderResults();
             });
 
-            // SOAP dropdown filter
             document.getElementById('soap-filter').addEventListener('change', (e) => {
                 const dropdown = document.getElementById('soap-filter');
                 const selectedValue = e.target.value;
@@ -1268,7 +1558,6 @@
                     categoryFilter = selectedValue;
                     dropdown.style.backgroundColor = '#eab308';
                     dropdown.style.color = 'white';
-                    // Clear other category filters
                     document.getElementById('pelvic-health-btn').className = 'btn btn-secondary';
                     document.getElementById('acute-care-btn').className = 'btn btn-secondary';
                 } else {
@@ -1280,7 +1569,6 @@
                 renderResults();
             });
 
-            // Clear filters
             document.getElementById('clear-filters-btn').addEventListener('click', () => {
                 searchQuery = '';
                 categoryFilter = '';
@@ -1299,7 +1587,6 @@
                 showStatus('All filters cleared');
             });
 
-            // Search input
             document.getElementById('search-input').addEventListener('input', (e) => {
                 searchQuery = e.target.value;
                 renderResults();
@@ -1308,7 +1595,6 @@
             console.log('App initialized');
         }
 
-        // Start when page loads
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
