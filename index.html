@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dot Phrase Search Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -568,35 +569,33 @@
             
             reader.onload = function(e) {
                 try {
-                    // We'll simulate Excel parsing for now since SheetJS isn't available in this environment
-                    // In a real implementation, you would use SheetJS here
+                    const arrayBuffer = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(arrayBuffer, {type: 'array'});
                     
-                    // For demonstration, we'll show that Excel files are supported
-                    // but convert them to CSV format for now
-                    
-                    showStatus('Excel file detected. Note: For full Excel support, please convert to CSV format for now.', 'error');
-                    
-                    // In a real implementation with SheetJS, you would do:
-                    /*
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
+                    // Get the first worksheet
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Convert to JSON
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                    
+                    if (jsonData.length === 0) {
+                        throw new Error('Excel file appears to be empty');
+                    }
                     
                     // Convert to our expected format
                     const headers = jsonData[0];
                     const rows = jsonData.slice(1);
-                    const data = rows.map(row => {
+                    const processedData = rows.map(function(row) {
                         const obj = {};
-                        headers.forEach((header, index) => {
+                        headers.forEach(function(header, index) {
                             obj[header] = row[index] || '';
                         });
                         return obj;
                     });
                     
-                    processUploadedData(data);
-                    */
+                    processUploadedData(processedData);
+                    showStatus('Successfully loaded Excel file with ' + processedData.length + ' rows!', 'success');
                     
                 } catch (error) {
                     showStatus('Error reading Excel file: ' + error.message, 'error');
@@ -624,20 +623,26 @@
                 let category = '';
                 let soapLocation = '';
                 
+                // Helper function to safely convert values to strings
+                function toString(value) {
+                    if (value === null || value === undefined) return '';
+                    return String(value).trim();
+                }
+                
                 for (let i = 0; i < keys.length; i++) {
                     const key = keys[i];
                     const lowerKey = key.toLowerCase().trim();
                     
                     if (lowerKey === 'dot phrase' || lowerKey === 'dotphrase') {
-                        dotPhrase = row[key] || '';
+                        dotPhrase = toString(row[key]);
                     } else if (lowerKey === 'brief description' || lowerKey === 'briefdescription') {
-                        description = row[key] || '';
+                        description = toString(row[key]);
                     } else if (lowerKey === 'full description' || lowerKey === 'fulldescription') {
-                        content = row[key] || '';
+                        content = toString(row[key]);
                     } else if (lowerKey === 'category') {
-                        category = row[key] || '';
+                        category = toString(row[key]);
                     } else if (lowerKey === 'soap location' || lowerKey === 'soaplocation') {
-                        soapLocation = row[key] || '';
+                        soapLocation = toString(row[key]);
                     }
                 }
 
@@ -652,7 +657,7 @@
                     isFavorite: false
                 };
             }).filter(function(item) {
-                return item.dotPhrase && item.dotPhrase.trim();
+                return item.dotPhrase && item.dotPhrase.length > 0;
             });
 
             if (mappedData.length === 0) {
@@ -790,7 +795,7 @@
             const bulkBtn = document.getElementById('bulk-select-btn');
             if (bulkSelectMode) {
                 bulkBtn.classList.add('active');
-                bulkBtn.textContent = '✕ Exit Bulk Select';
+                bulkBtn.textContent = '✓ Exit Bulk Select';
             } else {
                 bulkBtn.classList.remove('active');
                 bulkBtn.textContent = '☑️ Bulk Select';
@@ -1120,4 +1125,4 @@
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
-</html> '
+</html>
