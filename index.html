@@ -348,7 +348,7 @@
         
         <div class="upload-area">
             <label for="file-upload" class="upload-label">
-                📁 Upload CSV or Excel File
+                Upload CSV or Excel File
             </label>
             <input
                 id="file-upload"
@@ -359,15 +359,15 @@
             <p class="upload-description">
                 Upload your file with dot phrases. Supported formats: CSV, Excel (.xlsx, .xls). Expected columns: Dot Phrase, Category, SOAP Location, Brief Description, Full Description
             </p>
-            <div id="loading" class="loading">🔄 Processing file...</div>
+            <div id="loading" class="loading">Processing file...</div>
         </div>
 
         <div class="action-buttons">
-            <button id="create-btn" class="btn btn-primary">➕ Create New</button>
-            <button id="favorites-btn" class="btn btn-secondary">⭐ Favorites Only</button>
-            <button id="export-btn" class="btn btn-primary">📥 Export CSV</button>
-            <button id="bulk-select-btn" class="btn btn-secondary">☑️ Bulk Select</button>
-            <button id="delete-all-btn" class="btn btn-danger">🗑️ Delete All</button>
+            <button id="create-btn" class="btn btn-primary">Create New</button>
+            <button id="favorites-btn" class="btn btn-secondary">Favorites Only</button>
+            <button id="export-btn" class="btn btn-primary">Export CSV</button>
+            <button id="bulk-select-btn" class="btn btn-secondary">Bulk Select</button>
+            <button id="delete-all-btn" class="btn btn-danger">Delete All</button>
             <button id="clear-btn" class="btn btn-danger">Clear Filters</button>
         </div>
 
@@ -424,6 +424,8 @@
     </div>
 
     <script>
+        const STORAGE_KEY = 'dotPhrases';
+        
         let dotPhrases = [];
         let searchQuery = '';
         let activeCategory = 'all';
@@ -432,6 +434,30 @@
         let showFavoritesOnly = false;
         let bulkSelectMode = false;
         let selectedPhrases = new Set();
+
+        // Load data from localStorage on startup
+        function loadFromStorage() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    dotPhrases = JSON.parse(stored);
+                    showStatus('Loaded ' + dotPhrases.length + ' saved dot phrases', 'success');
+                }
+            } catch (error) {
+                console.error('Error loading from storage:', error);
+                showStatus('Error loading saved data', 'error');
+            }
+        }
+
+        // Save data to localStorage
+        function saveToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(dotPhrases));
+            } catch (error) {
+                console.error('Error saving to storage:', error);
+                showStatus('Error saving data. Storage may be full.', 'error');
+            }
+        }
 
         function showStatus(message, type) {
             const statusDiv = document.getElementById('status-messages');
@@ -572,18 +598,14 @@
                     const arrayBuffer = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(arrayBuffer, {type: 'array'});
                     
-                    // Get the first worksheet
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
-                    
-                    // Convert to JSON
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                     
                     if (jsonData.length === 0) {
                         throw new Error('Excel file appears to be empty');
                     }
                     
-                    // Convert to our expected format
                     const headers = jsonData[0];
                     const rows = jsonData.slice(1);
                     const processedData = rows.map(function(row) {
@@ -623,7 +645,6 @@
                 let category = '';
                 let soapLocation = '';
                 
-                // Helper function to safely convert values to strings
                 function toString(value) {
                     if (value === null || value === undefined) return '';
                     return String(value).trim();
@@ -665,6 +686,7 @@
             }
 
             dotPhrases = mappedData;
+            saveToStorage();
             updateCategoryFilters();
             renderResults();
             showStatus('Successfully loaded ' + mappedData.length + ' dot phrases!', 'success');
@@ -748,6 +770,7 @@
         function clearAll() {
             if (confirm('Are you sure you want to delete all dot phrases? This cannot be undone.')) {
                 dotPhrases = [];
+                saveToStorage();
                 activeCategory = 'all';
                 activeSoapFilter = 'all';
                 searchQuery = '';
@@ -781,10 +804,10 @@
             const favBtn = document.getElementById('favorites-btn');
             if (showFavoritesOnly) {
                 favBtn.classList.add('active');
-                favBtn.textContent = '⭐ Show All';
+                favBtn.textContent = 'Show All';
             } else {
                 favBtn.classList.remove('active');
-                favBtn.textContent = '⭐ Favorites Only';
+                favBtn.textContent = 'Favorites Only';
             }
             renderResults();
         }
@@ -795,10 +818,10 @@
             const bulkBtn = document.getElementById('bulk-select-btn');
             if (bulkSelectMode) {
                 bulkBtn.classList.add('active');
-                bulkBtn.textContent = '✓ Exit Bulk Select';
+                bulkBtn.textContent = 'Exit Bulk Select';
             } else {
                 bulkBtn.classList.remove('active');
-                bulkBtn.textContent = '☑️ Bulk Select';
+                bulkBtn.textContent = 'Bulk Select';
             }
             renderResults();
         }
@@ -807,6 +830,7 @@
             const phrase = dotPhrases.find(p => p.id === phraseId);
             if (phrase) {
                 phrase.isFavorite = !phrase.isFavorite;
+                saveToStorage();
                 const action = phrase.isFavorite ? 'added to' : 'removed from';
                 showStatus(`Phrase ${action} favorites`, 'success');
                 renderResults();
@@ -834,6 +858,7 @@
             };
             
             dotPhrases.unshift(newPhrase);
+            saveToStorage();
             updateCategoryFilters();
             renderResults();
             showStatus('New phrase created successfully!', 'success');
@@ -847,6 +872,7 @@
             
             if (confirm(`Delete ${selectedPhrases.size} selected phrases? This cannot be undone.`)) {
                 dotPhrases = dotPhrases.filter(p => !selectedPhrases.has(p.id));
+                saveToStorage();
                 selectedPhrases.clear();
                 updateCategoryFilters();
                 renderResults();
@@ -880,28 +906,24 @@
         function getFilteredPhrases() {
             let filtered = dotPhrases;
             
-            // Filter by favorites
             if (showFavoritesOnly) {
                 filtered = filtered.filter(function(phrase) {
                     return phrase.isFavorite;
                 });
             }
             
-            // Filter by category
             if (activeCategory !== 'all') {
                 filtered = filtered.filter(function(phrase) {
                     return phrase.category === activeCategory;
                 });
             }
             
-            // Filter by SOAP location
             if (activeSoapFilter !== 'all') {
                 filtered = filtered.filter(function(phrase) {
                     return phrase.soapLocation === activeSoapFilter;
                 });
             }
             
-            // Filter by search query
             if (searchQuery.trim()) {
                 const query = searchQuery.toLowerCase();
                 filtered = filtered.filter(function(phrase) {
@@ -919,7 +941,6 @@
                 });
             }
             
-            // Sort results
             filtered.sort(function(a, b) {
                 switch (sortBy) {
                     case 'name':
@@ -973,7 +994,6 @@
                 const phraseCard = document.createElement('div');
                 phraseCard.className = 'phrase-card';
                 
-                // Add bulk select checkbox if in bulk select mode
                 if (bulkSelectMode) {
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
@@ -1030,7 +1050,7 @@
                 
                 const favoriteBtn = document.createElement('button');
                 favoriteBtn.className = 'action-btn';
-                favoriteBtn.textContent = phrase.isFavorite ? '⭐' : '☆';
+                favoriteBtn.textContent = phrase.isFavorite ? '★' : '☆';
                 favoriteBtn.title = phrase.isFavorite ? 'Remove from favorites' : 'Add to favorites';
                 favoriteBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -1064,10 +1084,10 @@
         }
 
         function init() {
-            // File upload
+            loadFromStorage();
+            
             document.getElementById('file-upload').addEventListener('change', handleFileUpload);
             
-            // Action buttons
             document.getElementById('create-btn').addEventListener('click', createNewPhrase);
             document.getElementById('favorites-btn').addEventListener('click', toggleFavorites);
             document.getElementById('export-btn').addEventListener('click', exportToCSV);
@@ -1081,7 +1101,6 @@
             });
             document.getElementById('clear-filters-btn').addEventListener('click', clearFilters);
             
-            // Search functionality
             const searchInput = document.getElementById('search-input');
             const clearSearch = document.getElementById('clear-search');
             
@@ -1099,26 +1118,23 @@
                 searchInput.focus();
             });
             
-            // Category filters - handle predefined category filters
             document.querySelectorAll('.filter-btn[data-category]').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     setActiveCategory(this.dataset.category);
                 });
             });
             
-            // SOAP filter dropdown
             document.getElementById('soap-filter').addEventListener('change', function(e) {
                 activeSoapFilter = e.target.value;
                 renderResults();
             });
             
-            // Sort functionality
             document.getElementById('sort-select').addEventListener('change', function(e) {
                 sortBy = e.target.value;
                 renderResults();
             });
             
-            // Initial render
+            updateCategoryFilters();
             renderResults();
         }
 
@@ -1126,3 +1142,4 @@
     </script>
 </body>
 </html>
+                
