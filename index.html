@@ -249,6 +249,17 @@
             border-radius: 12px;
             font-size: 0.75rem;
             margin-bottom: 8px;
+            margin-right: 4px;
+        }
+        
+        .phrase-modal {
+            display: inline-block;
+            background-color: #fef3c7;
+            color: #92400e;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
         }
         
         .phrase-description {
@@ -357,7 +368,7 @@
                 class="file-input"
             />
             <p class="upload-description">
-                Upload your file with dot phrases. Supported formats: CSV, Excel (.xlsx, .xls). Expected columns: Dot Phrase, Category, SOAP Location, Brief Description, Full Description
+                Upload your file with dot phrases. Supported formats: CSV, Excel (.xlsx, .xls). Expected columns: Dot Phrase, Category, SOAP Location, Brief Description, Full Description, Modal Command
             </p>
             <div id="loading" class="loading">Processing file...</div>
         </div>
@@ -367,19 +378,21 @@
             <button id="favorites-btn" class="btn btn-secondary">Favorites Only</button>
             <button id="export-btn" class="btn btn-primary">Export CSV</button>
             <button id="bulk-select-btn" class="btn btn-secondary">Bulk Select</button>
+            <button id="delete-selected-btn" class="btn btn-danger" style="display: none;">Delete Selected</button>
             <button id="delete-all-btn" class="btn btn-danger">Delete All</button>
-            <button id="clear-btn" class="btn btn-danger">Clear Filters</button>
+            <button id="clear-btn" class="btn btn-secondary">Clear Filters</button>
+            <button id="debug-btn" class="btn btn-secondary">Debug Modal Data</button>
         </div>
 
         <div class="search-container">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon">&#128269;</span>
             <input
                 type="text"
                 id="search-input"
-                placeholder="Search dot phrases, descriptions, or content..."
+                placeholder="Search dot phrases, descriptions, modal commands, or content..."
                 class="search-input"
             />
-            <button id="clear-search" class="clear-search" style="display: none;">✕</button>
+            <button id="clear-search" class="clear-search" style="display: none;">&#10005;</button>
         </div>
         
         <div class="filter-container">
@@ -398,7 +411,10 @@
                 <option value="Plan">Plan</option>
             </select>
             
-            <button id="clear-filters-btn" class="btn btn-secondary" style="margin-left: 16px;">Clear Filters</button>
+            <span class="filter-label" style="margin-left: 24px;">Modal Commands:</span>
+            <button id="modal-filter-btn" class="filter-btn" data-modal="all">All</button>
+            <button class="filter-btn" data-modal="has-modal">Has Modal</button>
+            <button class="filter-btn" data-modal="no-modal">No Modal</button>
         </div>
 
         <div class="results-info">
@@ -417,7 +433,7 @@
         <div id="results-grid" class="results-grid"></div>
 
         <div id="no-results" class="no-results" style="display: none;">
-            <p style="font-size: 3em;">🔍</p>
+            <p style="font-size: 3em;">&#128269;</p>
             <p style="font-size: 1.125rem;">No dot phrases found</p>
             <p>Try uploading a CSV file or use different search terms</p>
         </div>
@@ -430,18 +446,72 @@
         let searchQuery = '';
         let activeCategory = 'all';
         let activeSoapFilter = 'all';
+        let activeModalFilter = 'all';
         let sortBy = 'name';
         let showFavoritesOnly = false;
         let bulkSelectMode = false;
         let selectedPhrases = new Set();
 
-        // Load data from localStorage on startup
+        loadFromStorage();
+        updateCategoryFilters();
+        renderResults();
+
+        document.getElementById('file-upload').addEventListener('change', handleFileUpload);
+        document.getElementById('create-btn').addEventListener('click', createNewPhrase);
+        document.getElementById('favorites-btn').addEventListener('click', toggleFavorites);
+        document.getElementById('export-btn').addEventListener('click', exportToCSV);
+        document.getElementById('bulk-select-btn').addEventListener('click', toggleBulkSelect);
+        document.getElementById('delete-selected-btn').addEventListener('click', deleteSelectedPhrases);
+        document.getElementById('delete-all-btn').addEventListener('click', clearAll);
+        document.getElementById('clear-btn').addEventListener('click', clearFilters);
+        document.getElementById('debug-btn').addEventListener('click', debugModalData);
+        
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            searchQuery = e.target.value;
+            document.getElementById('clear-search').style.display = searchQuery ? 'block' : 'none';
+            renderResults();
+        });
+        
+        document.getElementById('clear-search').addEventListener('click', function() {
+            searchQuery = '';
+            document.getElementById('search-input').value = '';
+            this.style.display = 'none';
+            renderResults();
+        });
+        
+        document.getElementById('soap-filter').addEventListener('change', function(e) {
+            activeSoapFilter = e.target.value;
+            renderResults();
+        });
+        
+        document.getElementById('sort-select').addEventListener('change', function(e) {
+            sortBy = e.target.value;
+            renderResults();
+        });
+        
+        document.querySelectorAll('.filter-btn[data-category]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                setActiveCategory(this.dataset.category);
+            });
+        });
+        
+        document.querySelectorAll('.filter-btn[data-modal]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                activeModalFilter = this.dataset.modal;
+                document.querySelectorAll('[data-modal]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderResults();
+            });
+        });
+
         function loadFromStorage() {
             try {
                 const stored = localStorage.getItem(STORAGE_KEY);
                 if (stored) {
                     dotPhrases = JSON.parse(stored);
-                    showStatus('Loaded ' + dotPhrases.length + ' saved dot phrases', 'success');
+                    if (dotPhrases.length > 0) {
+                        showStatus('Loaded ' + dotPhrases.length + ' saved dot phrases', 'success');
+                    }
                 }
             } catch (error) {
                 console.error('Error loading from storage:', error);
@@ -449,7 +519,6 @@
             }
         }
 
-        // Save data to localStorage
         function saveToStorage() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(dotPhrases));
@@ -473,11 +542,238 @@
             }, 5000);
         }
 
+        function getFilteredPhrases() {
+            let filtered = dotPhrases;
+            
+            if (showFavoritesOnly) {
+                filtered = filtered.filter(p => p.isFavorite);
+            }
+            
+            if (activeCategory !== 'all') {
+                filtered = filtered.filter(p => p.category === activeCategory);
+            }
+            
+            if (activeSoapFilter !== 'all') {
+                filtered = filtered.filter(p => p.soapLocation === activeSoapFilter);
+            }
+            
+            if (activeModalFilter === 'has-modal') {
+                filtered = filtered.filter(function(p) {
+                    return p.modalCommand && String(p.modalCommand).trim().length > 0;
+                });
+            } else if (activeModalFilter === 'no-modal') {
+                filtered = filtered.filter(function(p) {
+                    return !p.modalCommand || String(p.modalCommand).trim().length === 0;
+                });
+            }
+            
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                filtered = filtered.filter(p => 
+                    (p.dotPhrase && p.dotPhrase.toLowerCase().includes(query)) ||
+                    (p.description && p.description.toLowerCase().includes(query)) ||
+                    (p.content && p.content.toLowerCase().includes(query)) ||
+                    (p.modalCommand && p.modalCommand.toLowerCase().includes(query)) ||
+                    (p.category && p.category.toLowerCase().includes(query))
+                );
+            }
+            
+            filtered.sort(function(a, b) {
+                switch(sortBy) {
+                    case 'name':
+                        return (a.dotPhrase || '').localeCompare(b.dotPhrase || '');
+                    case 'name-desc':
+                        return (b.dotPhrase || '').localeCompare(a.dotPhrase || '');
+                    case 'category':
+                        return (a.category || '').localeCompare(b.category || '');
+                    case 'recent':
+                        return new Date(b.dateAdded) - new Date(a.dateAdded);
+                    default:
+                        return 0;
+                }
+            });
+            
+            return filtered;
+        }
+
+        function renderResults() {
+            const filteredPhrases = getFilteredPhrases();
+            const resultsGrid = document.getElementById('results-grid');
+            const noResults = document.getElementById('no-results');
+            const resultsCount = document.getElementById('results-count');
+            const deleteBtn = document.getElementById('delete-selected-btn');
+
+            let filterText = '';
+            if (searchQuery) filterText += ' matching "' + searchQuery + '"';
+            if (activeCategory !== 'all') filterText += ' in category "' + activeCategory + '"';
+            if (activeSoapFilter !== 'all') filterText += ' in SOAP "' + activeSoapFilter + '"';
+            if (activeModalFilter === 'has-modal') filterText += ' (with modal commands)';
+            if (activeModalFilter === 'no-modal') filterText += ' (without modal commands)';
+            if (showFavoritesOnly) filterText += ' (favorites only)';
+            
+            resultsCount.textContent = 'Showing ' + filteredPhrases.length + ' of ' + dotPhrases.length + ' dot phrases' + filterText;
+
+            if (bulkSelectMode && selectedPhrases.size > 0) {
+                deleteBtn.style.display = 'block';
+            } else {
+                deleteBtn.style.display = 'none';
+            }
+
+            resultsGrid.innerHTML = '';
+
+            if (filteredPhrases.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            filteredPhrases.forEach(function(phrase) {
+                const phraseCard = document.createElement('div');
+                phraseCard.className = 'phrase-card';
+                
+                if (bulkSelectMode) {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.style.marginRight = '8px';
+                    checkbox.checked = selectedPhrases.has(phrase.id);
+                    checkbox.addEventListener('change', function(e) {
+                        e.stopPropagation();
+                        if (this.checked) {
+                            selectedPhrases.add(phrase.id);
+                        } else {
+                            selectedPhrases.delete(phrase.id);
+                        }
+                        renderResults();
+                    });
+                    phraseCard.appendChild(checkbox);
+                }
+                
+                const title = document.createElement('div');
+                title.className = 'phrase-title';
+                title.innerHTML = highlightSearchTerms(phrase.dotPhrase || '', searchQuery);
+                phraseCard.appendChild(title);
+                
+                if (phrase.category) {
+                    const category = document.createElement('div');
+                    category.className = 'phrase-category';
+                    category.textContent = phrase.category;
+                    phraseCard.appendChild(category);
+                }
+                
+                if (phrase.soapLocation) {
+                    const soap = document.createElement('div');
+                    soap.className = 'phrase-category';
+                    soap.style.backgroundColor = '#e0e7ff';
+                    soap.style.color = '#3730a3';
+                    soap.textContent = 'SOAP: ' + phrase.soapLocation;
+                    phraseCard.appendChild(soap);
+                }
+                
+                if (phrase.modalCommand) {
+                    const modal = document.createElement('div');
+                    modal.className = 'phrase-modal';
+                    modal.innerHTML = 'CMD ' + highlightSearchTerms(phrase.modalCommand, searchQuery);
+                    phraseCard.appendChild(modal);
+                }
+                
+                if (phrase.description) {
+                    const desc = document.createElement('div');
+                    desc.className = 'phrase-description';
+                    desc.innerHTML = highlightSearchTerms(phrase.description, searchQuery);
+                    phraseCard.appendChild(desc);
+                }
+                
+                if (phrase.content) {
+                    const content = document.createElement('div');
+                    content.className = 'phrase-content';
+                    const preview = phrase.content.length > 200 ? phrase.content.substring(0, 200) + '...' : phrase.content;
+                    content.innerHTML = highlightSearchTerms(preview, searchQuery);
+                    phraseCard.appendChild(content);
+                }
+                
+                const actions = document.createElement('div');
+                actions.className = 'phrase-actions';
+                
+                const favoriteBtn = document.createElement('button');
+                favoriteBtn.className = 'action-btn';
+                favoriteBtn.innerHTML = phrase.isFavorite ? '&#9733;' : '&#9734;';
+                favoriteBtn.title = phrase.isFavorite ? 'Remove from favorites' : 'Add to favorites';
+                favoriteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleFavorite(phrase.id);
+                });
+                actions.appendChild(favoriteBtn);
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'action-btn';
+                copyBtn.innerHTML = '&#128203;';
+                copyBtn.title = 'Copy content to clipboard';
+                copyBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    copyToClipboard(phrase.content || phrase.dotPhrase);
+                });
+                actions.appendChild(copyBtn);
+                
+                const copyDotBtn = document.createElement('button');
+                copyDotBtn.className = 'action-btn';
+                copyDotBtn.innerHTML = '&#128221;';
+                copyDotBtn.title = 'Copy dot phrase to clipboard';
+                copyDotBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    copyToClipboard(phrase.dotPhrase);
+                });
+                actions.appendChild(copyDotBtn);
+                
+                if (phrase.modalCommand) {
+                    const copyModalBtn = document.createElement('button');
+                    copyModalBtn.className = 'action-btn';
+                    copyModalBtn.textContent = 'CMD';
+                    copyModalBtn.title = 'Copy modal command to clipboard';
+                    copyModalBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        copyToClipboard(phrase.modalCommand);
+                    });
+                    actions.appendChild(copyModalBtn);
+                }
+                
+                phraseCard.appendChild(actions);
+                resultsGrid.appendChild(phraseCard);
+            });
+        }
+
+        function copyToClipboard(text) {
+            if (!text) {
+                showStatus('Nothing to copy', 'error');
+                return;
+            }
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showStatus('Copied to clipboard!', 'success');
+                }).catch(function() {
+                    showStatus('Failed to copy', 'error');
+                });
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showStatus('Copied to clipboard!', 'success');
+                } catch (err) {
+                    showStatus('Failed to copy', 'error');
+                }
+                document.body.removeChild(textarea);
+            }
+        }
+
         function parseCSV(text) {
             const lines = text.split('\n');
-            if (lines.length === 0) {
-                throw new Error('File appears to be empty');
-            }
+            if (lines.length === 0) throw new Error('File appears to be empty');
             
             const headers = parseCSVLine(lines[0]);
             const data = [];
@@ -602,22 +898,19 @@
                     const worksheet = workbook.Sheets[firstSheetName];
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                     
-                    if (jsonData.length === 0) {
-                        throw new Error('Excel file appears to be empty');
-                    }
+                    if (jsonData.length === 0) throw new Error('Excel file appears to be empty');
                     
                     const headers = jsonData[0];
                     const rows = jsonData.slice(1);
                     const processedData = rows.map(function(row) {
                         const obj = {};
                         headers.forEach(function(header, index) {
-                            obj[header] = row[index] || '';
+                            obj[header] = row[index] !== undefined ? String(row[index]) : '';
                         });
                         return obj;
                     });
                     
                     processUploadedData(processedData);
-                    showStatus('Successfully loaded Excel file with ' + processedData.length + ' rows!', 'success');
                     
                 } catch (error) {
                     showStatus('Error reading Excel file: ' + error.message, 'error');
@@ -644,6 +937,7 @@
                 let content = '';
                 let category = '';
                 let soapLocation = '';
+                let modalCommand = '';
                 
                 function toString(value) {
                     if (value === null || value === undefined) return '';
@@ -664,6 +958,8 @@
                         category = toString(row[key]);
                     } else if (lowerKey === 'soap location' || lowerKey === 'soaplocation') {
                         soapLocation = toString(row[key]);
+                    } else if (lowerKey === 'modal command' || lowerKey === 'modalcommand' || lowerKey === 'mmodal command' || lowerKey === 'mmodalcommand') {
+                        modalCommand = toString(row[key]);
                     }
                 }
 
@@ -674,6 +970,7 @@
                     content: content,
                     category: category,
                     soapLocation: soapLocation,
+                    modalCommand: modalCommand,
                     dateAdded: new Date(),
                     isFavorite: false
                 };
@@ -731,14 +1028,15 @@
                 return;
             }
 
-            const headers = ['Dot Phrase', 'Category', 'SOAP Location', 'Brief Description', 'Full Description'];
+            const headers = ['Dot Phrase', 'Category', 'SOAP Location', 'Brief Description', 'Full Description', 'Modal Command'];
             const rows = dotPhrases.map(function(phrase) {
                 return [
                     phrase.dotPhrase || '',
                     phrase.category || '',
                     phrase.soapLocation || '',
                     phrase.description || '',
-                    phrase.content || ''
+                    phrase.content || '',
+                    phrase.modalCommand || ''
                 ].map(function(field) {
                     const escaped = field.replace(/"/g, '""');
                     return (escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')) 
@@ -773,6 +1071,7 @@
                 saveToStorage();
                 activeCategory = 'all';
                 activeSoapFilter = 'all';
+                activeModalFilter = 'all';
                 searchQuery = '';
                 showFavoritesOnly = false;
                 bulkSelectMode = false;
@@ -780,6 +1079,12 @@
                 document.getElementById('search-input').value = '';
                 document.getElementById('clear-search').style.display = 'none';
                 document.getElementById('soap-filter').value = 'all';
+                document.querySelectorAll('[data-modal]').forEach(function(btn) {
+                    btn.classList.remove('active');
+                    if (btn.dataset.modal === 'all') {
+                        btn.classList.add('active');
+                    }
+                });
                 updateCategoryFilters();
                 renderResults();
                 showStatus('All dot phrases deleted', 'success');
@@ -789,12 +1094,19 @@
         function clearFilters() {
             activeCategory = 'all';
             activeSoapFilter = 'all';
+            activeModalFilter = 'all';
             searchQuery = '';
             showFavoritesOnly = false;
             document.getElementById('search-input').value = '';
             document.getElementById('clear-search').style.display = 'none';
             document.getElementById('favorites-btn').classList.remove('active');
             document.getElementById('soap-filter').value = 'all';
+            document.querySelectorAll('[data-modal]').forEach(function(btn) {
+                btn.classList.remove('active');
+                if (btn.dataset.modal === 'all') {
+                    btn.classList.add('active');
+                }
+            });
             setActiveCategory('all');
             showStatus('All filters cleared', 'success');
         }
@@ -832,7 +1144,7 @@
                 phrase.isFavorite = !phrase.isFavorite;
                 saveToStorage();
                 const action = phrase.isFavorite ? 'added to' : 'removed from';
-                showStatus(`Phrase ${action} favorites`, 'success');
+                showStatus('Phrase ' + action + ' favorites', 'success');
                 renderResults();
             }
         }
@@ -843,8 +1155,9 @@
             
             const description = prompt('Enter brief description:');
             const content = prompt('Enter full description/content:');
-            const category = prompt('Enter category (All, Pelvic Health, Acute Care):');
+            const category = prompt('Enter category:');
             const soapLocation = prompt('Enter SOAP location (Subjective, Objective, Assessment, Plan):');
+            const modalCommand = prompt('Enter Modal Command:');
             
             const newPhrase = {
                 id: 'manual-' + Date.now(),
@@ -853,6 +1166,7 @@
                 content: content || '',
                 category: category || '',
                 soapLocation: soapLocation || '',
+                modalCommand: modalCommand || '',
                 dateAdded: new Date(),
                 isFavorite: false
             };
@@ -870,276 +1184,44 @@
                 return;
             }
             
-            if (confirm(`Delete ${selectedPhrases.size} selected phrases? This cannot be undone.`)) {
+            const count = selectedPhrases.size;
+            if (confirm('Delete ' + count + ' selected phrases? This cannot be undone.')) {
                 dotPhrases = dotPhrases.filter(p => !selectedPhrases.has(p.id));
                 saveToStorage();
                 selectedPhrases.clear();
                 updateCategoryFilters();
                 renderResults();
-                showStatus(`Deleted ${selectedPhrases.size} phrases`, 'success');
+                showStatus('Deleted ' + count + ' phrases', 'success');
             }
+        }
+
+        function debugModalData() {
+            const withModal = dotPhrases.filter(p => p.modalCommand && String(p.modalCommand).trim().length > 0);
+            const withoutModal = dotPhrases.filter(p => !p.modalCommand || String(p.modalCommand).trim().length === 0);
+            
+            let msg = 'Total phrases: ' + dotPhrases.length + '\n';
+            msg += 'With modal commands: ' + withModal.length + '\n';
+            msg += 'Without modal commands: ' + withoutModal.length + '\n\n';
+            
+            if (withModal.length > 0) {
+                msg += 'Sample phrases with modals:\n';
+                withModal.slice(0, 3).forEach(p => {
+                    msg += '- "' + p.dotPhrase + '" -> Modal: "' + p.modalCommand + '"\n';
+                });
+            }
+            
+            alert(msg);
+            console.log('All phrases:', dotPhrases);
+            console.log('With modal:', withModal);
+            console.log('Without modal:', withoutModal);
         }
 
         function highlightSearchTerms(text, query) {
             if (!query || !text) return text;
             
-            const regex = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            const regex = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\        function processUploadedData(') + ')', 'gi');
             return text.replace(regex, '<mark style="background-color: #fef08a; padding: 1px 2px; border-radius: 2px;">$1</mark>');
         }
-
-        function copyToClipboard(text) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(function() {
-                    showStatus('Copied to clipboard!', 'success');
-                });
-            } else {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showStatus('Copied to clipboard!', 'success');
-            }
-        }
-
-        function getFilteredPhrases() {
-            let filtered = dotPhrases;
-            
-            if (showFavoritesOnly) {
-                filtered = filtered.filter(function(phrase) {
-                    return phrase.isFavorite;
-                });
-            }
-            
-            if (activeCategory !== 'all') {
-                filtered = filtered.filter(function(phrase) {
-                    return phrase.category === activeCategory;
-                });
-            }
-            
-            if (activeSoapFilter !== 'all') {
-                filtered = filtered.filter(function(phrase) {
-                    return phrase.soapLocation === activeSoapFilter;
-                });
-            }
-            
-            if (searchQuery.trim()) {
-                const query = searchQuery.toLowerCase();
-                filtered = filtered.filter(function(phrase) {
-                    const dotPhrase = (phrase.dotPhrase || '').toLowerCase();
-                    const description = (phrase.description || '').toLowerCase();
-                    const content = (phrase.content || '').toLowerCase();
-                    const category = (phrase.category || '').toLowerCase();
-                    const soapLocation = (phrase.soapLocation || '').toLowerCase();
-                    
-                    return dotPhrase.includes(query) ||
-                           description.includes(query) ||
-                           content.includes(query) ||
-                           category.includes(query) ||
-                           soapLocation.includes(query);
-                });
-            }
-            
-            filtered.sort(function(a, b) {
-                switch (sortBy) {
-                    case 'name':
-                        return (a.dotPhrase || '').localeCompare(b.dotPhrase || '');
-                    case 'name-desc':
-                        return (b.dotPhrase || '').localeCompare(a.dotPhrase || '');
-                    case 'category':
-                        return (a.category || '').localeCompare(b.category || '');
-                    case 'recent':
-                        return new Date(b.dateAdded) - new Date(a.dateAdded);
-                    default:
-                        return 0;
-                }
-            });
-            
-            return filtered;
-        }
-
-        function renderResults() {
-            const filteredPhrases = getFilteredPhrases();
-            const resultsGrid = document.getElementById('results-grid');
-            const noResults = document.getElementById('no-results');
-            const resultsCount = document.getElementById('results-count');
-
-            let filterText = '';
-            if (searchQuery) {
-                filterText = ' matching "' + searchQuery + '"';
-            }
-            if (activeCategory !== 'all') {
-                filterText += ' in category "' + activeCategory + '"';
-            }
-            if (activeSoapFilter !== 'all') {
-                filterText += ' in SOAP "' + activeSoapFilter + '"';
-            }
-            if (showFavoritesOnly) {
-                filterText += ' (favorites only)';
-            }
-            
-            resultsCount.textContent = 'Showing ' + filteredPhrases.length + ' of ' + dotPhrases.length + ' dot phrases' + filterText;
-
-            resultsGrid.innerHTML = '';
-
-            if (filteredPhrases.length === 0) {
-                noResults.style.display = 'block';
-                return;
-            }
-
-            noResults.style.display = 'none';
-
-            filteredPhrases.forEach(function(phrase) {
-                const phraseCard = document.createElement('div');
-                phraseCard.className = 'phrase-card';
-                
-                if (bulkSelectMode) {
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.style.marginRight = '8px';
-                    checkbox.checked = selectedPhrases.has(phrase.id);
-                    checkbox.addEventListener('change', function() {
-                        if (this.checked) {
-                            selectedPhrases.add(phrase.id);
-                        } else {
-                            selectedPhrases.delete(phrase.id);
-                        }
-                    });
-                    phraseCard.appendChild(checkbox);
-                }
-                
-                const title = document.createElement('div');
-                title.className = 'phrase-title';
-                title.innerHTML = highlightSearchTerms(phrase.dotPhrase || '', searchQuery);
-                phraseCard.appendChild(title);
-                
-                if (phrase.category) {
-                    const category = document.createElement('div');
-                    category.className = 'phrase-category';
-                    category.textContent = phrase.category;
-                    phraseCard.appendChild(category);
-                }
-                
-                if (phrase.soapLocation) {
-                    const soap = document.createElement('div');
-                    soap.className = 'phrase-category';
-                    soap.style.backgroundColor = '#e0e7ff';
-                    soap.style.color = '#3730a3';
-                    soap.textContent = 'SOAP: ' + phrase.soapLocation;
-                    phraseCard.appendChild(soap);
-                }
-                
-                if (phrase.description) {
-                    const desc = document.createElement('div');
-                    desc.className = 'phrase-description';
-                    desc.innerHTML = highlightSearchTerms(phrase.description, searchQuery);
-                    phraseCard.appendChild(desc);
-                }
-                
-                if (phrase.content) {
-                    const content = document.createElement('div');
-                    content.className = 'phrase-content';
-                    const preview = phrase.content.length > 200 ? phrase.content.substring(0, 200) + '...' : phrase.content;
-                    content.innerHTML = highlightSearchTerms(preview, searchQuery);
-                    phraseCard.appendChild(content);
-                }
-                
-                const actions = document.createElement('div');
-                actions.className = 'phrase-actions';
-                
-                const favoriteBtn = document.createElement('button');
-                favoriteBtn.className = 'action-btn';
-                favoriteBtn.textContent = phrase.isFavorite ? '★' : '☆';
-                favoriteBtn.title = phrase.isFavorite ? 'Remove from favorites' : 'Add to favorites';
-                favoriteBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    toggleFavorite(phrase.id);
-                });
-                actions.appendChild(favoriteBtn);
-                
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'action-btn';
-                copyBtn.textContent = '📋';
-                copyBtn.title = 'Copy content to clipboard';
-                copyBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    copyToClipboard(phrase.content || phrase.dotPhrase);
-                });
-                actions.appendChild(copyBtn);
-                
-                const copyDotBtn = document.createElement('button');
-                copyDotBtn.className = 'action-btn';
-                copyDotBtn.textContent = '📝';
-                copyDotBtn.title = 'Copy dot phrase to clipboard';
-                copyDotBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    copyToClipboard(phrase.dotPhrase);
-                });
-                actions.appendChild(copyDotBtn);
-                
-                phraseCard.appendChild(actions);
-                resultsGrid.appendChild(phraseCard);
-            });
-        }
-
-        function init() {
-            loadFromStorage();
-            
-            document.getElementById('file-upload').addEventListener('change', handleFileUpload);
-            
-            document.getElementById('create-btn').addEventListener('click', createNewPhrase);
-            document.getElementById('favorites-btn').addEventListener('click', toggleFavorites);
-            document.getElementById('export-btn').addEventListener('click', exportToCSV);
-            document.getElementById('bulk-select-btn').addEventListener('click', toggleBulkSelect);
-            document.getElementById('delete-all-btn').addEventListener('click', function() {
-                if (bulkSelectMode && selectedPhrases.size > 0) {
-                    deleteSelectedPhrases();
-                } else {
-                    clearAll();
-                }
-            });
-            document.getElementById('clear-filters-btn').addEventListener('click', clearFilters);
-            
-            const searchInput = document.getElementById('search-input');
-            const clearSearch = document.getElementById('clear-search');
-            
-            searchInput.addEventListener('input', function(e) {
-                searchQuery = e.target.value;
-                clearSearch.style.display = searchQuery ? 'block' : 'none';
-                renderResults();
-            });
-            
-            clearSearch.addEventListener('click', function() {
-                searchInput.value = '';
-                searchQuery = '';
-                clearSearch.style.display = 'none';
-                renderResults();
-                searchInput.focus();
-            });
-            
-            document.querySelectorAll('.filter-btn[data-category]').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    setActiveCategory(this.dataset.category);
-                });
-            });
-            
-            document.getElementById('soap-filter').addEventListener('change', function(e) {
-                activeSoapFilter = e.target.value;
-                renderResults();
-            });
-            
-            document.getElementById('sort-select').addEventListener('change', function(e) {
-                sortBy = e.target.value;
-                renderResults();
-            });
-            
-            updateCategoryFilters();
-            renderResults();
-        }
-
-        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
-                
